@@ -17,32 +17,37 @@
 {{!
     @template local_reuseunit/sync_preview
 
-    Template for displaying sync preview with selectable changes.
+    Template for displaying sync preview with selectable changes and conflict detection.
 
     Context variables required for this template:
     * linkid - The link ID
     * templatename - Name of the template
     * has_changes - Whether there are changes to sync
+    * has_conflicts - Whether there are conflicts requiring resolution
     * added - Array of modules to add
     * modified - Array of modules to update
+    * conflicts - Array of modules with conflicts (both source and dest modified)
+    * local_edits - Array of modules edited locally (only dest modified)
     * removed - Array of modules to remove
     * local - Array of local modules (will be preserved)
-    * added_count - Count of modules to add
-    * modified_count - Count of modules to update
-    * removed_count - Count of modules to remove
-    * local_count - Count of local modules
+    * added_count, modified_count, conflicts_count, local_edits_count, removed_count, local_count
 
     Example context (json):
     {
         "linkid": 1,
         "templatename": "My Template",
         "has_changes": true,
+        "has_conflicts": true,
         "added": [{"cmid": 10, "name": "New Quiz", "modname": "quiz", "icon": "..."}],
         "modified": [{"source_cmid": 5, "dest_cmid": 20, "name": "Updated Assignment", "modname": "assign", "icon": "..."}],
+        "conflicts": [{"source_cmid": 7, "dest_cmid": 22, "source_name": "Quiz v2", "dest_name": "Quiz Local", "modname": "quiz"}],
+        "local_edits": [{"source_cmid": 8, "dest_cmid": 23, "name": "Edited Forum", "modname": "forum"}],
         "removed": [{"source_cmid": 3, "dest_cmid": 15, "name": "Old Forum", "modname": "forum", "icon": "..."}],
         "local": [{"cmid": 25, "name": "Local Resource", "modname": "resource", "icon": "..."}],
         "added_count": 1,
         "modified_count": 1,
+        "conflicts_count": 1,
+        "local_edits_count": 1,
         "removed_count": 1,
         "local_count": 1
     }
@@ -60,6 +65,14 @@
     {{/has_changes}}
 
     {{#has_changes}}
+    {{#has_conflicts}}
+    <div class="alert alert-warning mb-3">
+        <i class="fa fa-exclamation-triangle"></i>
+        <strong>{{#str}}syncpreview_conflicts_warning, local_reuseunit{{/str}}</strong>
+        {{#str}}syncpreview_conflicts_help, local_reuseunit{{/str}}
+    </div>
+    {{/has_conflicts}}
+
     <div class="sync-preview-summary mb-3">
         <div class="d-flex flex-wrap gap-2">
             {{#added_count}}
@@ -72,8 +85,18 @@
                 <i class="fa fa-refresh"></i> {{modified_count}} {{#str}}syncpreview_toupdate, local_reuseunit{{/str}}
             </span>
             {{/modified_count}}
-            {{#removed_count}}
+            {{#conflicts_count}}
             <span class="badge bg-danger">
+                <i class="fa fa-exclamation-circle"></i> {{conflicts_count}} {{#str}}syncpreview_conflicts, local_reuseunit{{/str}}
+            </span>
+            {{/conflicts_count}}
+            {{#local_edits_count}}
+            <span class="badge bg-info">
+                <i class="fa fa-edit"></i> {{local_edits_count}} {{#str}}syncpreview_local_edits, local_reuseunit{{/str}}
+            </span>
+            {{/local_edits_count}}
+            {{#removed_count}}
+            <span class="badge bg-dark">
                 <i class="fa fa-trash"></i> {{removed_count}} {{#str}}syncpreview_toremove, local_reuseunit{{/str}}
             </span>
             {{/removed_count}}
@@ -136,6 +159,75 @@
         </div>
     </div>
     {{/modified.length}}
+
+    {{! Modules with Conflicts }}
+    {{#conflicts.length}}
+    <div class="sync-preview-section sync-conflicts-section mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0 text-danger">
+                <i class="fa fa-exclamation-circle"></i> {{#str}}syncpreview_conflicts_title, local_reuseunit{{/str}}
+            </h6>
+        </div>
+        <p class="text-muted small">{{#str}}syncpreview_conflicts_desc, local_reuseunit{{/str}}</p>
+        <div class="list-group">
+            {{#conflicts}}
+            <div class="list-group-item">
+                <div class="d-flex align-items-center mb-2">
+                    {{#icon}}<img src="{{icon}}" class="activityicon me-2" alt="">{{/icon}}
+                    <span class="flex-grow-1"><strong>{{source_name}}</strong></span>
+                    <span class="badge bg-light text-dark">{{modname}}</span>
+                </div>
+                <div class="conflict-options ps-4">
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input sync-conflict-choice"
+                               name="conflict_{{source_cmid}}" value="source"
+                               data-source-cmid="{{source_cmid}}" data-dest-cmid="{{dest_cmid}}" id="conflict_source_{{source_cmid}}">
+                        <label class="form-check-label" for="conflict_source_{{source_cmid}}">
+                            <i class="fa fa-cloud-download text-primary"></i>
+                            {{#str}}syncpreview_use_source, local_reuseunit{{/str}}
+                            <small class="text-muted">({{source_name}})</small>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input sync-conflict-choice"
+                               name="conflict_{{source_cmid}}" value="dest"
+                               data-source-cmid="{{source_cmid}}" data-dest-cmid="{{dest_cmid}}" id="conflict_dest_{{source_cmid}}" checked>
+                        <label class="form-check-label" for="conflict_dest_{{source_cmid}}">
+                            <i class="fa fa-desktop text-success"></i>
+                            {{#str}}syncpreview_keep_local, local_reuseunit{{/str}}
+                            <small class="text-muted">({{dest_name}})</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {{/conflicts}}
+        </div>
+    </div>
+    {{/conflicts.length}}
+
+    {{! Locally Edited Modules }}
+    {{#local_edits.length}}
+    <div class="sync-preview-section sync-local-edits-section mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0 text-info">
+                <i class="fa fa-edit"></i> {{#str}}syncpreview_local_edits_title, local_reuseunit{{/str}}
+            </h6>
+        </div>
+        <p class="text-muted small">{{#str}}syncpreview_local_edits_desc, local_reuseunit{{/str}}</p>
+        <div class="list-group">
+            {{#local_edits}}
+            <div class="list-group-item d-flex align-items-center bg-light">
+                {{#icon}}<img src="{{icon}}" class="activityicon me-2" alt="">{{/icon}}
+                <span class="flex-grow-1">{{name}}</span>
+                <span class="badge bg-info">{{modname}}</span>
+                <span class="badge bg-success ms-1">
+                    <i class="fa fa-check"></i> {{#str}}syncpreview_locally_modified, local_reuseunit{{/str}}
+                </span>
+            </div>
+            {{/local_edits}}
+        </div>
+    </div>
+    {{/local_edits.length}}
 
     {{! Modules to Remove }}
     {{#removed.length}}
@@ -233,5 +325,26 @@
 }
 .reuseunit-sync-preview .sync-preview-section:has(.text-secondary) {
     border-left-color: #6c757d;
+}
+.reuseunit-sync-preview .sync-preview-section:has(.text-info) {
+    border-left-color: #0dcaf0;
+}
+.reuseunit-sync-preview .sync-conflicts-section {
+    border-left-color: #dc3545;
+    background-color: #fff5f5;
+    border-radius: 0.375rem;
+    padding: 1rem;
+}
+.reuseunit-sync-preview .sync-conflicts-section .list-group-item {
+    border-color: #f5c6cb;
+}
+.reuseunit-sync-preview .sync-local-edits-section {
+    border-left-color: #0dcaf0;
+    background-color: #f0faff;
+    border-radius: 0.375rem;
+    padding: 1rem;
+}
+.reuseunit-sync-preview .conflict-options {
+    border-left: 2px solid #dee2e6;
 }
 </style>

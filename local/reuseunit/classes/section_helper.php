@@ -289,7 +289,13 @@ class section_helper {
      * Save module mappings after import/sync.
      *
      * @param int $linkid Link ID
-     * @param array $mappings Array of ['source_cmid' => int, 'dest_cmid' => int, 'modname' => string, 'name' => string]
+     * @param array $mappings Array of mappings with keys:
+     *   - source_cmid: int
+     *   - dest_cmid: int
+     *   - modname: string
+     *   - name: string (optional)
+     *   - source_timemodified: int (optional)
+     *   - dest_timemodified: int (optional)
      * @return void
      */
     public static function save_module_mappings(int $linkid, array $mappings): void {
@@ -308,6 +314,8 @@ class section_helper {
                 $existing->dest_cmid = $mapping['dest_cmid'];
                 $existing->modname = $mapping['modname'];
                 $existing->source_name = $mapping['name'] ?? '';
+                $existing->source_timemodified = $mapping['source_timemodified'] ?? null;
+                $existing->dest_timemodified = $mapping['dest_timemodified'] ?? null;
                 $existing->timemodified = $now;
                 $DB->update_record('local_reuseunit_synced_modules', $existing);
             } else {
@@ -318,6 +326,8 @@ class section_helper {
                 $record->dest_cmid = $mapping['dest_cmid'];
                 $record->modname = $mapping['modname'];
                 $record->source_name = $mapping['name'] ?? '';
+                $record->source_timemodified = $mapping['source_timemodified'] ?? null;
+                $record->dest_timemodified = $mapping['dest_timemodified'] ?? null;
                 $record->timecreated = $now;
                 $record->timemodified = $now;
                 $DB->insert_record('local_reuseunit_synced_modules', $record);
@@ -386,16 +396,19 @@ class section_helper {
     }
 
     /**
-     * Get detailed sync preview for a link.
+     * Get detailed sync preview for a link with conflict detection.
      *
      * Returns what will happen when sync is performed:
      * - added: New modules in template that will be added
-     * - modified: Modules that have changed and will be updated
-     * - removed: Modules in destination that are no longer in template (only for full sync)
+     * - modified: Modules that have changed in source and will be updated
+     * - conflicts: Modules modified in BOTH source AND destination (requires user decision)
+     * - local_edits: Modules that were edited locally (dest modified since last sync)
+     * - removed: Modules in destination that are no longer in template
      * - local: Modules in destination that were added locally (will be preserved)
+     * - unchanged: Modules that haven't changed
      *
      * @param int $linkid Link ID
-     * @return array Preview data with added, modified, removed, local arrays
+     * @return array Preview data with added, modified, conflicts, local_edits, removed, local, unchanged arrays
      */
     public static function get_sync_preview(int $linkid): array {
         global $DB;
@@ -403,10 +416,13 @@ class section_helper {
         $preview = [
             'added' => [],
             'modified' => [],
+            'conflicts' => [],
+            'local_edits' => [],
             'removed' => [],
             'local' => [],
             'unchanged' => [],
             'has_changes' => false,
+            'has_conflicts' => false,
         ];
 
         $link = $DB->get_record('local_reuseunit_links', ['id' => $linkid]);
@@ -481,7 +497,7 @@ class section_helper {
             }
         }
 
-        // Analyze changes.
+        // Analyze changes with conflict detection.
         foreach ($sourcemods as $sourcecmid => $sourcemod) {
             if (isset($mappingbysource[$sourcecmid])) {
                 // This source module was previously synced.
@@ -489,16 +505,47 @@ class section_helper {
                 $destcmid = $mapping->dest_cmid;
 
                 if (isset($destmods[$destcmid])) {
-                    // Check if modified.
                     $destmod = $destmods[$destcmid];
-                    if ($sourcemod['timemodified'] > $mapping->timemodified) {
+
+                    // Check if source was modified since last sync.
+                    $sourcemodified = !empty($mapping->source_timemodified) &&
+                                      $sourcemod['timemodified'] > $mapping->source_timemodified;
+
+                    // Check if dest was modified since last sync (local edit).
+                    $destmodified = !empty($mapping->dest_timemodified) &&
+                                    $destmod['timemodified'] > $mapping->dest_timemodified;
+
+                    if ($sourcemodified && $destmodified) {
+                        // CONFLICT: Both source and dest were modified.
+                        $preview['conflicts'][] = [
+                            'source' => $sourcemod,
+                            'dest' => $destmod,
+                            'source_cmid' => $sourcecmid,
+                            'dest_cmid' => $destcmid,
+                            'source_time' => $sourcemod['timemodified'],
+                            'dest_time' => $destmod['timemodified'],
+                            'last_sync' => $mapping->timemodified,
+                        ];
+                    } else if ($sourcemodified) {
+                        // Source modified, can update.
                         $preview['modified'][] = [
                             'source' => $sourcemod,
                             'dest' => $destmod,
                             'source_cmid' => $sourcecmid,
                             'dest_cmid' => $destcmid,
                         ];
+                    } else if ($destmodified) {
+                        // Only dest modified (local edit, not in conflict).
+                        $preview['local_edits'][] = [
+                            'source' => $sourcemod,
+                            'dest' => $destmod,
+                            'source_cmid' => $sourcecmid,
+                            'dest_cmid' => $destcmid,
+                            'dest_time' => $destmod['timemodified'],
+                            'last_sync' => $mapping->timemodified,
+                        ];
                     } else {
+                        // Neither modified.
                         $preview['unchanged'][] = [
                             'source' => $sourcemod,
                             'dest' => $destmod,
@@ -539,7 +586,10 @@ class section_helper {
 
         $preview['has_changes'] = !empty($preview['added']) ||
                                    !empty($preview['modified']) ||
+                                   !empty($preview['conflicts']) ||
                                    !empty($preview['removed']);
+
+        $preview['has_conflicts'] = !empty($preview['conflicts']);
 
         return $preview;
     }
@@ -572,5 +622,231 @@ class section_helper {
             }
         }
         return null;
+    }
+
+    /**
+     * Log a sync operation to history.
+     *
+     * @param int $linkid Link ID
+     * @param int $userid User ID
+     * @param string $syncmode Sync mode (replace, merge, selective)
+     * @param array $stats Stats array with added, updated, removed, preserved, conflicts counts
+     * @param array $changesdata Detailed changes data for potential rollback
+     * @param string $status Status (completed, failed, rolled_back)
+     * @param string $errormessage Error message if failed
+     * @param string $hashbefore Content hash before sync
+     * @param string $hashafter Content hash after sync
+     * @return int The sync history record ID
+     */
+    public static function log_sync_history(
+        int $linkid,
+        int $userid,
+        string $syncmode,
+        array $stats,
+        array $changesdata,
+        string $status = 'completed',
+        string $errormessage = '',
+        string $hashbefore = '',
+        string $hashafter = ''
+    ): int {
+        global $DB;
+
+        $record = new \stdClass();
+        $record->linkid = $linkid;
+        $record->userid = $userid;
+        $record->sync_mode = $syncmode;
+        $record->added_count = $stats['added'] ?? 0;
+        $record->updated_count = $stats['updated'] ?? 0;
+        $record->removed_count = $stats['removed'] ?? 0;
+        $record->preserved_count = $stats['preserved'] ?? 0;
+        $record->conflict_count = $stats['conflicts'] ?? 0;
+        $record->changes_data = json_encode($changesdata);
+        $record->status = $status;
+        $record->error_message = $errormessage;
+        $record->contenthash_before = $hashbefore;
+        $record->contenthash_after = $hashafter;
+        $record->timecreated = time();
+
+        return $DB->insert_record('local_reuseunit_sync_history', $record);
+    }
+
+    /**
+     * Get sync history for a link.
+     *
+     * @param int $linkid Link ID
+     * @param int $limit Maximum number of records to return
+     * @return array Array of sync history records
+     */
+    public static function get_sync_history(int $linkid, int $limit = 20): array {
+        global $DB;
+
+        return $DB->get_records('local_reuseunit_sync_history', [
+            'linkid' => $linkid,
+        ], 'timecreated DESC', '*', 0, $limit);
+    }
+
+    /**
+     * Get a specific sync history record.
+     *
+     * @param int $historyid History record ID
+     * @return \stdClass|false The history record or false
+     */
+    public static function get_sync_history_record(int $historyid) {
+        global $DB;
+        return $DB->get_record('local_reuseunit_sync_history', ['id' => $historyid]);
+    }
+
+    /**
+     * Mark a sync history record as rolled back.
+     *
+     * @param int $historyid History record ID
+     * @return bool Success
+     */
+    public static function mark_history_rolled_back(int $historyid): bool {
+        global $DB;
+
+        return $DB->update_record('local_reuseunit_sync_history', (object)[
+            'id' => $historyid,
+            'status' => 'rolled_back',
+        ]);
+    }
+
+    /**
+     * Get all linked sections for a template (for bulk sync).
+     *
+     * @param int $templateid Template ID
+     * @param bool $autosynconly Only return links with autosync enabled
+     * @return array Array of link records
+     */
+    public static function get_template_links(int $templateid, bool $autosynconly = false): array {
+        global $DB;
+
+        $params = ['templateid' => $templateid];
+
+        if ($autosynconly) {
+            $params['autosync'] = 1;
+        }
+
+        return $DB->get_records('local_reuseunit_links', $params);
+    }
+
+    /**
+     * Get links that need auto-sync based on granular options.
+     *
+     * @param int $templateid Template ID
+     * @return array Array of link records with their granular sync settings
+     */
+    public static function get_autosync_links(int $templateid): array {
+        global $DB;
+
+        return $DB->get_records('local_reuseunit_links', [
+            'templateid' => $templateid,
+            'autosync' => 1,
+        ]);
+    }
+
+    /**
+     * Prepare changes data for rollback storage.
+     *
+     * @param array $addedmods Modules that were added
+     * @param array $updatedmods Modules that were updated (with before/after data)
+     * @param array $removedmods Modules that were removed
+     * @return array Structured changes data
+     */
+    public static function prepare_rollback_data(
+        array $addedmods,
+        array $updatedmods,
+        array $removedmods
+    ): array {
+        return [
+            'added' => $addedmods,
+            'updated' => $updatedmods,
+            'removed' => $removedmods,
+            'timestamp' => time(),
+        ];
+    }
+
+    /**
+     * Check if a rollback is possible for a sync history record.
+     *
+     * A rollback is possible if:
+     * - The history record exists and status is 'completed'
+     * - The destination section still exists
+     * - The modules referenced in changes_data are still valid
+     *
+     * @param int $historyid History record ID
+     * @return array ['possible' => bool, 'reason' => string]
+     */
+    public static function can_rollback(int $historyid): array {
+        global $DB;
+
+        $history = self::get_sync_history_record($historyid);
+        if (!$history) {
+            return ['possible' => false, 'reason' => 'History record not found'];
+        }
+
+        if ($history->status !== 'completed') {
+            return ['possible' => false, 'reason' => 'Sync was not completed successfully'];
+        }
+
+        $link = $DB->get_record('local_reuseunit_links', ['id' => $history->linkid]);
+        if (!$link) {
+            return ['possible' => false, 'reason' => 'Link no longer exists'];
+        }
+
+        $section = $DB->get_record('course_sections', ['id' => $link->sectionid]);
+        if (!$section) {
+            return ['possible' => false, 'reason' => 'Section no longer exists'];
+        }
+
+        // Check if there are newer syncs that would make rollback unsafe.
+        $newersyncs = $DB->count_records_select('local_reuseunit_sync_history',
+            'linkid = ? AND timecreated > ? AND status = ?',
+            [$history->linkid, $history->timecreated, 'completed']
+        );
+
+        if ($newersyncs > 0) {
+            return ['possible' => false, 'reason' => 'Newer syncs exist - rollback would cause data loss'];
+        }
+
+        return ['possible' => true, 'reason' => ''];
+    }
+
+    /**
+     * Get all links for a course with sync status.
+     *
+     * @param int $courseid Course ID
+     * @return array Array of links with additional status info
+     */
+    public static function get_course_links_with_status(int $courseid): array {
+        global $DB;
+
+        $links = $DB->get_records('local_reuseunit_links', ['courseid' => $courseid]);
+
+        foreach ($links as &$link) {
+            $template = $DB->get_record('local_reuseunit_templates', ['id' => $link->templateid]);
+            $link->templatename = $template ? $template->name : '';
+            $link->templatesource = $template ? $template->source_courseid : 0;
+
+            // Get preview to check for updates.
+            $preview = self::get_sync_preview($link->id);
+            $link->has_updates = $preview['has_changes'];
+            $link->has_conflicts = $preview['has_conflicts'];
+            $link->updates_count = count($preview['added']) + count($preview['modified']);
+            $link->conflicts_count = count($preview['conflicts']);
+        }
+
+        return $links;
+    }
+
+    /**
+     * Calculate hash of destination section content.
+     *
+     * @param int $courseid Course ID
+     * @param int $sectionid Section ID
+     * @return string SHA256 hash
+     */
+    public static function calculate_dest_contenthash(int $courseid, int $sectionid): string {
+        return self::calculate_contenthash($courseid, $sectionid);
     }
 }

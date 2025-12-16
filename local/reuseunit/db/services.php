@@ -239,6 +239,38 @@ $functions = [
         'loginrequired' => true,
     ],
 
+    'local_reuseunit_get_sync_history' => [
+        'classname' => 'local_reuseunit\external\get_sync_history',
+        'description' => 'Get sync history for a linked section',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_bulk_sync' => [
+        'classname' => 'local_reuseunit\external\bulk_sync',
+        'description' => 'Sync all linked sections for a template',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_rollback_sync' => [
+        'classname' => 'local_reuseunit\external\rollback_sync',
+        'description' => 'Rollback a previous sync operation',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_update_link_settings' => [
+        'classname' => 'local_reuseunit\external\update_link_settings',
+        'description' => 'Update link settings including auto-sync options',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
     // Scheduled import services.
     'local_reuseunit_schedule_import' => [
         'classname' => 'local_reuseunit\external\schedule_import',
@@ -311,6 +343,10 @@ $services = [
             'local_reuseunit_sync_section',
             'local_reuseunit_get_linked_sections',
             'local_reuseunit_get_sync_preview',
+            'local_reuseunit_get_sync_history',
+            'local_reuseunit_bulk_sync',
+            'local_reuseunit_rollback_sync',
+            'local_reuseunit_update_link_settings',
             'local_reuseunit_schedule_import',
             'local_reuseunit_get_scheduled_imports',
             'local_reuseunit_cancel_scheduled_import',

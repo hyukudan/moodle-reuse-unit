@@ -55,6 +55,7 @@ class sync_section extends external_api {
             'selectedadded' => new external_value(PARAM_TEXT, 'JSON array of source cmids to add (for selective mode)', VALUE_DEFAULT, ''),
             'selectedmodified' => new external_value(PARAM_TEXT, 'JSON array of source cmids to update (for selective mode)', VALUE_DEFAULT, ''),
             'selectedremoved' => new external_value(PARAM_TEXT, 'JSON array of dest cmids to remove (for selective mode)', VALUE_DEFAULT, ''),
+            'conflictresolutions' => new external_value(PARAM_TEXT, 'JSON object of conflict resolutions {source_cmid: "source"|"dest"}', VALUE_DEFAULT, ''),
             'preservelocal' => new external_value(PARAM_BOOL, 'Preserve local modules not from template', VALUE_DEFAULT, true),
         ]);
     }
@@ -68,6 +69,7 @@ class sync_section extends external_api {
      * @param string $selectedadded JSON array of source cmids to add
      * @param string $selectedmodified JSON array of source cmids to update
      * @param string $selectedremoved JSON array of dest cmids to remove
+     * @param string $conflictresolutions JSON object of conflict resolutions
      * @param bool $preservelocal Preserve local modules
      * @return array Result
      */
@@ -78,6 +80,7 @@ class sync_section extends external_api {
         string $selectedadded = '',
         string $selectedmodified = '',
         string $selectedremoved = '',
+        string $conflictresolutions = '',
         bool $preservelocal = true
     ): array {
         global $DB, $USER, $CFG;
@@ -94,6 +97,7 @@ class sync_section extends external_api {
             'selectedadded' => $selectedadded,
             'selectedmodified' => $selectedmodified,
             'selectedremoved' => $selectedremoved,
+            'conflictresolutions' => $conflictresolutions,
             'preservelocal' => $preservelocal,
         ]);
 
@@ -123,6 +127,7 @@ class sync_section extends external_api {
         $addcmids = !empty($params['selectedadded']) ? json_decode($params['selectedadded'], true) : null;
         $updatecmids = !empty($params['selectedmodified']) ? json_decode($params['selectedmodified'], true) : null;
         $removecmids = !empty($params['selectedremoved']) ? json_decode($params['selectedremoved'], true) : null;
+        $conflictres = !empty($params['conflictresolutions']) ? json_decode($params['conflictresolutions'], true) : [];
 
         // Determine if selective mode.
         $isselective = $params['mode'] === 'selective' ||
@@ -136,12 +141,23 @@ class sync_section extends external_api {
         // Get template dest cmids (modules that came from template).
         $templateDestCmids = section_helper::get_template_dest_cmids($params['linkid']);
 
+        // Calculate hash before sync for history.
+        $hashbefore = section_helper::calculate_dest_contenthash($link->courseid, $link->sectionid);
+
         // Stats for reporting.
         $stats = [
             'added' => 0,
             'updated' => 0,
             'removed' => 0,
             'preserved' => 0,
+            'conflicts' => 0,
+        ];
+
+        // Track changes for rollback data.
+        $changesdata = [
+            'added' => [],
+            'updated' => [],
+            'removed' => [],
         ];
 
         try {
@@ -174,6 +190,13 @@ class sync_section extends external_api {
                         continue;
                     }
 
+                    // Track for rollback.
+                    $changesdata['updated'][] = [
+                        'source_cmid' => $sourcecmid,
+                        'dest_cmid' => $destcmid,
+                        'name' => $modified['source']['name'] ?? '',
+                    ];
+
                     // Delete the old module.
                     course_delete_module($destcmid);
                     section_helper::delete_module_mappings($params['linkid'], [$destcmid]);
@@ -181,6 +204,36 @@ class sync_section extends external_api {
                     // Mark for re-import.
                     $cmidsToUpdate[] = $sourcecmid;
                     $stats['updated']++;
+                }
+            }
+
+            // Step 2b: Handle conflicts (modules changed in both source and dest).
+            if (!empty($preview['conflicts'])) {
+                foreach ($preview['conflicts'] as $conflict) {
+                    $sourcecmid = (string)$conflict['source_cmid'];
+                    $destcmid = $conflict['dest_cmid'];
+
+                    // Check conflict resolution - default is to keep local.
+                    $resolution = isset($conflictres[$sourcecmid]) ? $conflictres[$sourcecmid] : 'dest';
+
+                    if ($resolution === 'source') {
+                        // User chose to use source version - update.
+                        $changesdata['updated'][] = [
+                            'source_cmid' => (int)$sourcecmid,
+                            'dest_cmid' => $destcmid,
+                            'name' => $conflict['source']['name'] ?? '',
+                            'conflict_resolved' => 'source',
+                        ];
+
+                        course_delete_module($destcmid);
+                        section_helper::delete_module_mappings($params['linkid'], [$destcmid]);
+
+                        $cmidsToUpdate[] = (int)$sourcecmid;
+                        $stats['conflicts']++;
+                    } else {
+                        // User chose to keep local - just update the mapping times.
+                        $stats['conflicts']++;
+                    }
                 }
             }
 
@@ -198,6 +251,13 @@ class sync_section extends external_api {
                 if ($params['mode'] === 'merge' && $addcmids === null && !$params['includenew']) {
                     continue;
                 }
+
+                // Track for rollback.
+                $changesdata['added'][] = [
+                    'source_cmid' => $sourcecmid,
+                    'name' => $added['name'],
+                    'modname' => $added['modname'],
+                ];
 
                 $cmidsToAdd[] = $sourcecmid;
                 $stats['added']++;
@@ -258,6 +318,22 @@ class sync_section extends external_api {
 
             $DB->update_record('local_reuseunit_links', $link);
 
+            // Calculate hash after sync for history.
+            $hashafter = section_helper::calculate_dest_contenthash($link->courseid, $link->sectionid);
+
+            // Log sync to history.
+            $historyid = section_helper::log_sync_history(
+                $params['linkid'],
+                $USER->id,
+                $params['mode'],
+                $stats,
+                $changesdata,
+                'completed',
+                '',
+                $hashbefore,
+                $hashafter
+            );
+
             // Build result message.
             $messageparts = [];
             if ($stats['added'] > 0) {
@@ -272,6 +348,9 @@ class sync_section extends external_api {
             if ($stats['preserved'] > 0) {
                 $messageparts[] = get_string('sync_preserved', 'local_reuseunit', $stats['preserved']);
             }
+            if ($stats['conflicts'] > 0) {
+                $messageparts[] = get_string('sync_conflicts_resolved', 'local_reuseunit', $stats['conflicts']);
+            }
 
             $message = get_string('synccompleted', 'local_reuseunit');
             if (!empty($messageparts)) {
@@ -285,9 +364,24 @@ class sync_section extends external_api {
                 'updated' => $stats['updated'],
                 'removed' => $stats['removed'],
                 'preserved' => $stats['preserved'],
+                'conflicts' => $stats['conflicts'],
+                'historyid' => $historyid,
             ];
 
         } catch (\Exception $e) {
+            // Log failed sync to history.
+            section_helper::log_sync_history(
+                $params['linkid'],
+                $USER->id,
+                $params['mode'],
+                $stats,
+                $changesdata,
+                'failed',
+                $e->getMessage(),
+                $hashbefore ?? '',
+                ''
+            );
+
             return [
                 'success' => false,
                 'message' => get_string('syncfailed', 'local_reuseunit') . ': ' . $e->getMessage(),
@@ -295,6 +389,8 @@ class sync_section extends external_api {
                 'updated' => 0,
                 'removed' => 0,
                 'preserved' => 0,
+                'conflicts' => 0,
+                'historyid' => 0,
             ];
         }
     }
@@ -461,6 +557,8 @@ class sync_section extends external_api {
             'updated' => new external_value(PARAM_INT, 'Number of modules updated', VALUE_DEFAULT, 0),
             'removed' => new external_value(PARAM_INT, 'Number of modules removed', VALUE_DEFAULT, 0),
             'preserved' => new external_value(PARAM_INT, 'Number of local modules preserved', VALUE_DEFAULT, 0),
+            'conflicts' => new external_value(PARAM_INT, 'Number of conflicts resolved', VALUE_DEFAULT, 0),
+            'historyid' => new external_value(PARAM_INT, 'Sync history record ID', VALUE_DEFAULT, 0),
         ]);
     }
 }

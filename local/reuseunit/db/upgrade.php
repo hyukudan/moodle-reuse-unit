@@ -267,5 +267,90 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025121604, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2025121605) {
+        // Add source_timemodified and dest_timemodified to synced_modules table.
+        $table = new xmldb_table('local_reuseunit_synced_modules');
+
+        // Add source_timemodified field.
+        $field = new xmldb_field('source_timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'source_name');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add dest_timemodified field.
+        $field = new xmldb_field('dest_timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'source_timemodified');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121605, 'local', 'reuseunit');
+    }
+
+    if ($oldversion < 2025121606) {
+        // Define table local_reuseunit_sync_history for sync logging and rollback.
+        $table = new xmldb_table('local_reuseunit_sync_history');
+
+        // Adding fields.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('linkid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sync_mode', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'selective');
+        $table->add_field('added_count', XMLDB_TYPE_INTEGER, '5', null, null, null, '0');
+        $table->add_field('updated_count', XMLDB_TYPE_INTEGER, '5', null, null, null, '0');
+        $table->add_field('removed_count', XMLDB_TYPE_INTEGER, '5', null, null, null, '0');
+        $table->add_field('preserved_count', XMLDB_TYPE_INTEGER, '5', null, null, null, '0');
+        $table->add_field('conflict_count', XMLDB_TYPE_INTEGER, '5', null, null, null, '0');
+        $table->add_field('changes_data', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'completed');
+        $table->add_field('error_message', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('contenthash_before', XMLDB_TYPE_CHAR, '64', null, null, null, null);
+        $table->add_field('contenthash_after', XMLDB_TYPE_CHAR, '64', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('linkid', XMLDB_KEY_FOREIGN, ['linkid'], 'local_reuseunit_links', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Adding indexes.
+        $table->add_index('linkid_timecreated', XMLDB_INDEX_NOTUNIQUE, ['linkid', 'timecreated']);
+        $table->add_index('status', XMLDB_INDEX_NOTUNIQUE, ['status']);
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121606, 'local', 'reuseunit');
+    }
+
+    if ($oldversion < 2025121607) {
+        // Add granular auto-sync options to links table.
+        $table = new xmldb_table('local_reuseunit_links');
+
+        // Add autosync_add field.
+        $field = new xmldb_field('autosync_add', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'autosync');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add autosync_update field.
+        $field = new xmldb_field('autosync_update', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'autosync_add');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add autosync_remove field.
+        $field = new xmldb_field('autosync_remove', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'autosync_update');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121607, 'local', 'reuseunit');
+    }
+
     return true;
 }

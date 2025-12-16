@@ -118,6 +118,9 @@
         <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Template ID"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who created the link"/>
         <FIELD NAME="autosync" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Enable automatic sync"/>
+        <FIELD NAME="autosync_add" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" COMMENT="Auto-sync: add new modules"/>
+        <FIELD NAME="autosync_update" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" COMMENT="Auto-sync: update modified modules"/>
+        <FIELD NAME="autosync_remove" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Auto-sync: remove deleted modules"/>
         <FIELD NAME="template_version" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="1" COMMENT="Template version when synced"/>
         <FIELD NAME="last_synced" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Last sync timestamp"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
@@ -149,6 +152,8 @@
         <FIELD NAME="dest_cmid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course module ID in destination section"/>
         <FIELD NAME="modname" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="Module type name (e.g., assign, quiz)"/>
         <FIELD NAME="source_name" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Module name at sync time"/>
+        <FIELD NAME="source_timemodified" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Source module timemodified at last sync"/>
+        <FIELD NAME="dest_timemodified" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Dest module timemodified at last sync"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When the mapping was created"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last sync time"/>
       </FIELDS>
@@ -159,6 +164,35 @@
       <INDEXES>
         <INDEX NAME="linkid_source_cmid" UNIQUE="true" FIELDS="linkid, source_cmid"/>
         <INDEX NAME="linkid_dest_cmid" UNIQUE="false" FIELDS="linkid, dest_cmid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_sync_history" COMMENT="History of sync operations for rollback and audit">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="linkid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the sync"/>
+        <FIELD NAME="sync_mode" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="selective" COMMENT="Sync mode: replace, merge, selective"/>
+        <FIELD NAME="added_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of modules added"/>
+        <FIELD NAME="updated_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of modules updated"/>
+        <FIELD NAME="removed_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of modules removed"/>
+        <FIELD NAME="preserved_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of local modules preserved"/>
+        <FIELD NAME="conflict_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of conflicts resolved"/>
+        <FIELD NAME="changes_data" TYPE="text" NOTNULL="false" COMMENT="JSON of detailed changes for rollback"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="completed" COMMENT="Status: completed, failed, rolled_back"/>
+        <FIELD NAME="error_message" TYPE="text" NOTNULL="false" COMMENT="Error message if failed"/>
+        <FIELD NAME="contenthash_before" TYPE="char" LENGTH="64" NOTNULL="false" COMMENT="Dest section hash before sync"/>
+        <FIELD NAME="contenthash_after" TYPE="char" LENGTH="64" NOTNULL="false" COMMENT="Dest section hash after sync"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When sync was performed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="linkid" TYPE="foreign" FIELDS="linkid" REFTABLE="local_reuseunit_links" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="linkid_timecreated" UNIQUE="false" FIELDS="linkid, timecreated"/>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
       </INDEXES>
     </TABLE>
   </TABLES>

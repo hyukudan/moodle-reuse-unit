@@ -537,3 +537,57 @@ $string['sync_added'] = '{$a} added';
 $string['sync_updated'] = '{$a} updated';
 $string['sync_removed'] = '{$a} removed';
 $string['sync_preserved'] = '{$a} local preserved';
+$string['sync_conflicts_resolved'] = '{$a} conflicts resolved';
+
+// Conflict detection.
+$string['syncpreview_conflicts'] = 'conflicts';
+$string['syncpreview_local_edits'] = 'locally edited';
+$string['syncpreview_conflicts_warning'] = 'Conflicts detected!';
+$string['syncpreview_conflicts_help'] = 'Some modules have been modified in both the template and your local section. Please choose which version to keep for each conflict.';
+$string['syncpreview_conflicts_title'] = 'Conflicting modules (require resolution)';
+$string['syncpreview_conflicts_desc'] = 'These modules have been modified both in the template and locally. Choose which version to keep for each.';
+$string['syncpreview_use_source'] = 'Use template version';
+$string['syncpreview_keep_local'] = 'Keep local version';
+$string['syncpreview_local_edits_title'] = 'Locally edited modules';
+$string['syncpreview_local_edits_desc'] = 'These modules have been edited locally but the template version has not changed. They will be preserved.';
+$string['syncpreview_locally_modified'] = 'Locally edited';
+
+// Sync history.
+$string['synchistory'] = 'Sync history';
+$string['nosynchistory'] = 'No sync history available';
+$string['synchistory_title'] = 'Synchronization History';
+$string['synchistory_viewall'] = 'View all history';
+$string['syncstatus_completed'] = 'Completed';
+$string['syncstatus_failed'] = 'Failed';
+$string['syncstatus_rolledback'] = 'Rolled back';
+
+// Rollback.
+$string['rollback'] = 'Rollback';
+$string['rollback_sync'] = 'Rollback sync';
+$string['rollback_completed'] = 'Rollback completed. {$a} modules removed.';
+$string['rollback_confirm'] = 'Are you sure you want to rollback this sync? Modules that were added will be removed.';
+$string['cannotrollback'] = 'Cannot rollback this sync';
+
+// Bulk sync.
+$string['bulksync'] = 'Bulk sync';
+$string['bulksync_title'] = 'Bulk Synchronization';
+$string['bulksync_desc'] = 'Sync all linked sections for this template';
+$string['bulk_sync_has_conflicts'] = 'Skipped due to conflicts (requires manual resolution)';
+$string['bulksync_completed'] = 'Bulk sync completed: {$a->success} of {$a->total} sections synced';
+
+// Granular auto-sync.
+$string['autosync_settings'] = 'Auto-sync settings';
+$string['autosync_add'] = 'Auto-add new modules';
+$string['autosync_add_desc'] = 'Automatically add new modules from template';
+$string['autosync_update'] = 'Auto-update modified modules';
+$string['autosync_update_desc'] = 'Automatically update modules that changed in template';
+$string['autosync_remove'] = 'Auto-remove deleted modules';
+$string['autosync_remove_desc'] = 'Automatically remove modules deleted from template (use with caution)';
+$string['linksettings'] = 'Link settings';
+$string['linksettings_updated'] = 'Link settings updated';
+
+// Privacy for sync history.
+$string['privacy:metadata:synchistory'] = 'History of section synchronization operations.';
+$string['privacy:metadata:synchistory:userid'] = 'The ID of the user who performed the sync.';
+$string['privacy:metadata:synchistory:sync_mode'] = 'The synchronization mode used.';
+$string['privacy:metadata:synchistory:timecreated'] = 'When the sync was performed.';

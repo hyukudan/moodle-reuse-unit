@@ -537,3 +537,57 @@ $string['sync_added'] = '{$a} añadidos';
 $string['sync_updated'] = '{$a} actualizados';
 $string['sync_removed'] = '{$a} eliminados';
 $string['sync_preserved'] = '{$a} locales preservados';
+$string['sync_conflicts_resolved'] = '{$a} conflictos resueltos';
+
+// Detección de conflictos.
+$string['syncpreview_conflicts'] = 'conflictos';
+$string['syncpreview_local_edits'] = 'editados localmente';
+$string['syncpreview_conflicts_warning'] = '¡Conflictos detectados!';
+$string['syncpreview_conflicts_help'] = 'Algunos módulos han sido modificados tanto en la plantilla como en tu sección local. Por favor elige qué versión mantener para cada conflicto.';
+$string['syncpreview_conflicts_title'] = 'Módulos en conflicto (requieren resolución)';
+$string['syncpreview_conflicts_desc'] = 'Estos módulos han sido modificados tanto en la plantilla como localmente. Elige qué versión mantener para cada uno.';
+$string['syncpreview_use_source'] = 'Usar versión de la plantilla';
+$string['syncpreview_keep_local'] = 'Mantener versión local';
+$string['syncpreview_local_edits_title'] = 'Módulos editados localmente';
+$string['syncpreview_local_edits_desc'] = 'Estos módulos han sido editados localmente pero la versión de la plantilla no ha cambiado. Se preservarán.';
+$string['syncpreview_locally_modified'] = 'Editado localmente';
+
+// Historial de sincronización.
+$string['synchistory'] = 'Historial de sincronización';
+$string['nosynchistory'] = 'No hay historial de sincronización disponible';
+$string['synchistory_title'] = 'Historial de Sincronización';
+$string['synchistory_viewall'] = 'Ver todo el historial';
+$string['syncstatus_completed'] = 'Completado';
+$string['syncstatus_failed'] = 'Fallido';
+$string['syncstatus_rolledback'] = 'Revertido';
+
+// Reversión.
+$string['rollback'] = 'Revertir';
+$string['rollback_sync'] = 'Revertir sincronización';
+$string['rollback_completed'] = 'Reversión completada. {$a} módulos eliminados.';
+$string['rollback_confirm'] = '¿Estás seguro de que quieres revertir esta sincronización? Los módulos que fueron añadidos serán eliminados.';
+$string['cannotrollback'] = 'No se puede revertir esta sincronización';
+
+// Sincronización masiva.
+$string['bulksync'] = 'Sincronización masiva';
+$string['bulksync_title'] = 'Sincronización Masiva';
+$string['bulksync_desc'] = 'Sincronizar todas las secciones vinculadas para esta plantilla';
+$string['bulk_sync_has_conflicts'] = 'Omitido debido a conflictos (requiere resolución manual)';
+$string['bulksync_completed'] = 'Sincronización masiva completada: {$a->success} de {$a->total} secciones sincronizadas';
+
+// Auto-sincronización granular.
+$string['autosync_settings'] = 'Configuración de auto-sincronización';
+$string['autosync_add'] = 'Auto-añadir nuevos módulos';
+$string['autosync_add_desc'] = 'Añadir automáticamente nuevos módulos desde la plantilla';
+$string['autosync_update'] = 'Auto-actualizar módulos modificados';
+$string['autosync_update_desc'] = 'Actualizar automáticamente módulos que cambiaron en la plantilla';
+$string['autosync_remove'] = 'Auto-eliminar módulos borrados';
+$string['autosync_remove_desc'] = 'Eliminar automáticamente módulos borrados de la plantilla (usar con precaución)';
+$string['linksettings'] = 'Configuración del vínculo';
+$string['linksettings_updated'] = 'Configuración del vínculo actualizada';
+
+// Privacidad para historial de sincronización.
+$string['privacy:metadata:synchistory'] = 'Historial de operaciones de sincronización de secciones.';
+$string['privacy:metadata:synchistory:userid'] = 'El ID del usuario que realizó la sincronización.';
+$string['privacy:metadata:synchistory:sync_mode'] = 'El modo de sincronización utilizado.';
+$string['privacy:metadata:synchistory:timecreated'] = 'Cuándo se realizó la sincronización.';
