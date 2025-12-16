@@ -121,6 +121,13 @@ class section_helper {
         $record = $DB->get_record($tablename, ['id' => $cm->instance], 'timemodified');
         $timemodified = $record ? (int)$record->timemodified : 0;
 
+        // Enforce cache size limit to prevent memory issues in long-running scripts.
+        if (count(self::$timemodifiedcache) >= constants::CACHE_MAX_ENTRIES) {
+            // Remove oldest half of entries (simple LRU approximation).
+            self::$timemodifiedcache = array_slice(self::$timemodifiedcache,
+                (int)(constants::CACHE_MAX_ENTRIES / 2), null, true);
+        }
+
         // Cache the result.
         self::$timemodifiedcache[$cachekey] = $timemodified;
 
