@@ -210,5 +210,31 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025121602, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2025121603) {
+        // Add contenthash field to local_reuseunit_links for change detection.
+        $table = new xmldb_table('local_reuseunit_links');
+
+        // Add contenthash field - stores SHA256 hash of source section content.
+        $field = new xmldb_field('contenthash', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'partial_import');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add update_available field - flag indicating updates are available.
+        $field = new xmldb_field('update_available', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'contenthash');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add last_checked field - timestamp of last update check.
+        $field = new xmldb_field('last_checked', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'update_available');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121603, 'local', 'reuseunit');
+    }
+
     return true;
 }

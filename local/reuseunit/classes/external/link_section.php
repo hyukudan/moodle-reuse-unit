@@ -25,6 +25,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use context_course;
+use local_reuseunit\section_helper;
 
 /**
  * External function to create a link between a section and a template.
@@ -102,12 +103,28 @@ class link_section extends external_api {
             'sectionid' => $params['sectionid'],
         ]);
 
+        // Parse imported cmids for contenthash calculation.
+        $selectedcmids = [];
+        if (!empty($params['importedcmids'])) {
+            $selectedcmids = json_decode($params['importedcmids'], true) ?: [];
+        }
+
+        // Calculate contenthash of source section.
+        $contenthash = section_helper::calculate_contenthash(
+            $template->source_courseid,
+            $template->source_sectionid,
+            $selectedcmids
+        );
+
         if ($existing) {
             // Update existing link.
             $existing->templateid = $params['templateid'];
             $existing->autosync = $params['autosync'] ? 1 : 0;
             $existing->template_version = $template->current_version ?? 1;
             $existing->timemodified = time();
+            $existing->contenthash = $contenthash;
+            $existing->update_available = 0;
+            $existing->last_checked = time();
             // Update partial import data if provided.
             if (!empty($params['importedcmids'])) {
                 $existing->imported_cmids = $params['importedcmids'];
@@ -130,6 +147,10 @@ class link_section extends external_api {
             // Store partial import data.
             $link->imported_cmids = $params['importedcmids'] ?: null;
             $link->partial_import = $params['partialimport'] ? 1 : 0;
+            // Store contenthash for change detection.
+            $link->contenthash = $contenthash;
+            $link->update_available = 0;
+            $link->last_checked = time();
             $linkid = $DB->insert_record('local_reuseunit_links', $link);
         }
 

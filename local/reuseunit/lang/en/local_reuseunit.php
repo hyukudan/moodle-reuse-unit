@@ -502,3 +502,14 @@ $string['synconlyimported'] = 'Only sync originally imported items';
 $string['newitemsavailable'] = '{$a} new items available in template';
 $string['partialsynccompleted'] = 'Partial sync completed ({$a} items)';
 $string['importselection'] = 'Import selection';
+
+// Update detection.
+$string['task_checkupdates'] = 'Check for linked section updates';
+$string['updateavailable'] = 'Update available';
+$string['noupdates'] = 'No updates available';
+$string['lastchecked'] = 'Last checked: {$a}';
+$string['checkforupdates'] = 'Check for updates';
+$string['notification_updateavailable_subject'] = 'Template update available';
+$string['notification_updateavailable_message'] = 'The template "{$a->templatename}" linked to your course "{$a->coursename}" has been updated. Changes: {$a->changes}. Please sync to get the latest content.';
+$string['notification_autosynccompleted_subject'] = 'Section automatically synchronized';
+$string['notification_autosynccompleted_message'] = 'The section linked to template "{$a->templatename}" in your course "{$a->coursename}" has been automatically synchronized with the latest template changes.';

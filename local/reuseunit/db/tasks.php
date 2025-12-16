@@ -35,4 +35,14 @@ $tasks = [
         'dayofweek' => '0', // Run weekly on Sunday at 3:30 AM.
         'disabled' => 0,
     ],
+    [
+        'classname' => 'local_reuseunit\task\check_updates',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '*/6', // Run every 6 hours.
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    ],
 ];

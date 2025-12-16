@@ -228,6 +228,13 @@ Database tables are automatically dropped by Moodle during uninstallation.
 
 ## Changelog
 
+### Version 0.6.1
+- Added automatic change detection for linked sections
+- New scheduled task checks for template updates every 6 hours
+- Content hash tracking for precise change detection
+- Notifications when updates are available
+- Auto-sync option performs synchronization automatically
+
 ### Version 0.6.0
 - Added granular import feature - select specific activities/resources to import
 - Partial import tracking for synchronization

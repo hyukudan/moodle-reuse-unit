@@ -25,6 +25,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use context_course;
+use local_reuseunit\section_helper;
 
 /**
  * External function to sync a linked section with its template.
@@ -174,6 +175,8 @@ class sync_section extends external_api {
             $link->template_version = $template->current_version ?? 1;
             $link->last_synced = time();
             $link->timemodified = time();
+            $link->update_available = 0;
+            $link->last_checked = time();
 
             // If includenew was used, update the imported_cmids with all current cmids from source.
             if ($ispartialimport && $params['includenew']) {
@@ -184,7 +187,15 @@ class sync_section extends external_api {
                 }
                 $link->imported_cmids = json_encode($allsourcecmids);
                 $link->partial_import = 0; // No longer partial since we included all new.
+                $importedcmids = $allsourcecmids; // Update for hash calculation.
             }
+
+            // Calculate and save contenthash of synced content.
+            $link->contenthash = section_helper::calculate_contenthash(
+                $template->source_courseid,
+                $template->source_sectionid,
+                $ispartialimport ? $importedcmids : []
+            );
 
             $DB->update_record('local_reuseunit_links', $link);
 

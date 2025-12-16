@@ -502,3 +502,14 @@ $string['synconlyimported'] = 'Solo sincronizar elementos originalmente importad
 $string['newitemsavailable'] = '{$a} nuevos elementos disponibles en la plantilla';
 $string['partialsynccompleted'] = 'Sincronización parcial completada ({$a} elementos)';
 $string['importselection'] = 'Importar selección';
+
+// Detección de actualizaciones.
+$string['task_checkupdates'] = 'Verificar actualizaciones de secciones vinculadas';
+$string['updateavailable'] = 'Actualización disponible';
+$string['noupdates'] = 'Sin actualizaciones disponibles';
+$string['lastchecked'] = 'Última verificación: {$a}';
+$string['checkforupdates'] = 'Buscar actualizaciones';
+$string['notification_updateavailable_subject'] = 'Actualización de plantilla disponible';
+$string['notification_updateavailable_message'] = 'La plantilla "{$a->templatename}" vinculada a tu curso "{$a->coursename}" ha sido actualizada. Cambios: {$a->changes}. Por favor sincroniza para obtener el contenido más reciente.';
+$string['notification_autosynccompleted_subject'] = 'Sección sincronizada automáticamente';
+$string['notification_autosynccompleted_message'] = 'La sección vinculada a la plantilla "{$a->templatename}" en tu curso "{$a->coursename}" ha sido sincronizada automáticamente con los últimos cambios de la plantilla.';
