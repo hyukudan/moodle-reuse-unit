@@ -92,8 +92,11 @@ class rollback_sync extends external_api {
 
         $removedcount = 0;
 
-        // Parse changes data.
-        $changesdata = json_decode($history->changes_data, true) ?: [];
+        // Parse changes data with safe JSON decoding.
+        $changesdata = section_helper::safe_json_decode($history->changes_data, []);
+
+        // Track errors for reporting.
+        $errors = [];
 
         // Remove modules that were added during the sync.
         if ($params['removeadded'] && !empty($changesdata['added'])) {
@@ -112,7 +115,15 @@ class rollback_sync extends external_api {
                                 section_helper::delete_module_mappings($link->id, [$mapping->dest_cmid]);
                                 $removedcount++;
                             } catch (\Exception $e) {
-                                // Module may have already been deleted.
+                                // Log the error for debugging but continue with rollback.
+                                debugging(
+                                    'Rollback: Failed to delete module ' . $mapping->dest_cmid . ': ' . $e->getMessage(),
+                                    DEBUG_NORMAL
+                                );
+                                $errors[] = [
+                                    'cmid' => $mapping->dest_cmid,
+                                    'error' => $e->getMessage(),
+                                ];
                             }
                         }
                         break;
@@ -127,9 +138,15 @@ class rollback_sync extends external_api {
         // Rebuild course cache.
         rebuild_course_cache($link->courseid, true);
 
+        // Build result message.
+        $message = get_string('rollback_completed', 'local_reuseunit', $removedcount);
+        if (!empty($errors)) {
+            $message .= ' ' . get_string('rollback_with_errors', 'local_reuseunit', count($errors));
+        }
+
         return [
-            'success' => true,
-            'message' => get_string('rollback_completed', 'local_reuseunit', $removedcount),
+            'success' => empty($errors),
+            'message' => $message,
             'removed_count' => $removedcount,
         ];
     }

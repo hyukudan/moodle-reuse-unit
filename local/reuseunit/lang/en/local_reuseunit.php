@@ -565,6 +565,7 @@ $string['syncstatus_rolledback'] = 'Rolled back';
 $string['rollback'] = 'Rollback';
 $string['rollback_sync'] = 'Rollback sync';
 $string['rollback_completed'] = 'Rollback completed. {$a} modules removed.';
+$string['rollback_with_errors'] = 'However, {$a} module(s) could not be removed due to errors.';
 $string['rollback_confirm'] = 'Are you sure you want to rollback this sync? Modules that were added will be removed.';
 $string['cannotrollback'] = 'Cannot rollback this sync';
 

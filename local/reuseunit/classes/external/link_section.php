@@ -103,10 +103,10 @@ class link_section extends external_api {
             'sectionid' => $params['sectionid'],
         ]);
 
-        // Parse imported cmids for contenthash calculation.
+        // Parse imported cmids for contenthash calculation with safe JSON decoding.
         $selectedcmids = [];
         if (!empty($params['importedcmids'])) {
-            $selectedcmids = json_decode($params['importedcmids'], true) ?: [];
+            $selectedcmids = section_helper::safe_json_decode($params['importedcmids'], []);
         }
 
         // Calculate contenthash of source section.

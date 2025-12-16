@@ -565,6 +565,7 @@ $string['syncstatus_rolledback'] = 'Revertido';
 $string['rollback'] = 'Revertir';
 $string['rollback_sync'] = 'Revertir sincronización';
 $string['rollback_completed'] = 'Reversión completada. {$a} módulos eliminados.';
+$string['rollback_with_errors'] = 'Sin embargo, {$a} módulo(s) no pudieron ser eliminados debido a errores.';
 $string['rollback_confirm'] = '¿Estás seguro de que quieres revertir esta sincronización? Los módulos que fueron añadidos serán eliminados.';
 $string['cannotrollback'] = 'No se puede revertir esta sincronización';
 

@@ -73,10 +73,39 @@ class delete_template extends external_api {
             throw new \moodle_exception('error_nopermission', 'local_reuseunit');
         }
 
+        // Delete associated files if they exist.
+        if (!empty($template->fileitemid)) {
+            $fs = get_file_storage();
+
+            // Delete files associated with this template.
+            // Files are stored by the backup controller, typically in the 'backup' file area.
+            // We need to search for files with this itemid.
+            $syscontext = context_system::instance();
+
+            // Try to delete from backup file area (where backup controller stores files).
+            $fs->delete_area_files($syscontext->id, 'backup', 'automated', $template->fileitemid);
+
+            // Also try the local_reuseunit component if files are stored there.
+            $fs->delete_area_files($syscontext->id, 'local_reuseunit', 'templatebackup', $template->fileitemid);
+        }
+
+        // Delete associated sync history and synced modules first (before deleting links).
+        $links = $DB->get_records('local_reuseunit_links', ['templateid' => $template->id], '', 'id');
+        if (!empty($links)) {
+            $linkids = array_keys($links);
+            list($insql, $inparams) = $DB->get_in_or_equal($linkids, SQL_PARAMS_NAMED);
+            $DB->delete_records_select('local_reuseunit_sync_history', "linkid $insql", $inparams);
+            $DB->delete_records_select('local_reuseunit_synced_modules', "linkid $insql", $inparams);
+        }
+
+        // Delete associated links.
+        $DB->delete_records('local_reuseunit_links', ['templateid' => $template->id]);
+
+        // Delete template versions.
+        $DB->delete_records('local_reuseunit_versions', ['templateid' => $template->id]);
+
         // Delete the template.
         $DB->delete_records('local_reuseunit_templates', ['id' => $template->id]);
-
-        // TODO: Also delete associated backup file if exists.
 
         return [
             'success' => true,

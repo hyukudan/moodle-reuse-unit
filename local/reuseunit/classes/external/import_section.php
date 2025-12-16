@@ -31,6 +31,7 @@ use backup_controller;
 use backup;
 use restore_controller;
 use restore_dbops;
+use local_reuseunit\section_helper;
 
 /**
  * External function to import a section from one course to another.
@@ -104,7 +105,7 @@ class import_section extends external_api {
         $selectedcmidsarray = [];
         $ispartialimport = false;
         if (!empty($params['selectedcmids'])) {
-            $selectedcmidsarray = json_decode($params['selectedcmids'], true);
+            $selectedcmidsarray = section_helper::safe_json_decode($params['selectedcmids'], []);
             if (is_array($selectedcmidsarray) && count($selectedcmidsarray) > 0) {
                 $ispartialimport = true;
             }

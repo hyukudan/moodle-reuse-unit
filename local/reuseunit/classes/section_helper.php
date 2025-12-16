@@ -56,18 +56,25 @@ class section_helper {
         ];
 
         if (isset($modinfo->sections[$sectionnum])) {
+            // Collect cmids for batch loading.
+            $cmidstoload = [];
             foreach ($modinfo->sections[$sectionnum] as $cmid) {
-                // Skip if we have a selection and this cmid is not in it.
                 if (!empty($selectedcmids) && !in_array($cmid, $selectedcmids)) {
                     continue;
                 }
+                $cmidstoload[] = $cmid;
+            }
 
+            // Batch load timemodified values.
+            $preloaded = self::batch_load_timemodified($cmidstoload, $modinfo);
+
+            foreach ($cmidstoload as $cmid) {
                 $cm = $modinfo->cms[$cmid];
                 $contentdata['modules'][] = [
                     'cmid' => $cmid,
                     'modname' => $cm->modname,
                     'name' => $cm->name,
-                    'timemodified' => self::get_module_timemodified($cm),
+                    'timemodified' => self::get_module_timemodified($cm, $preloaded),
                 ];
             }
         }
@@ -81,18 +88,123 @@ class section_helper {
     }
 
     /**
+     * Cache for batch-loaded timemodified values.
+     * @var array
+     */
+    private static $timemodifiedcache = [];
+
+    /**
      * Get the timemodified for a course module.
      *
      * @param \cm_info $cm Course module info
+     * @param array|null $preloaded Optional preloaded timemodified values keyed by modname_instance
      * @return int Timemodified timestamp
      */
-    private static function get_module_timemodified(\cm_info $cm): int {
+    private static function get_module_timemodified(\cm_info $cm, ?array $preloaded = null): int {
+        // Check preloaded values first.
+        if ($preloaded !== null) {
+            $key = $cm->modname . '_' . $cm->instance;
+            if (isset($preloaded[$key])) {
+                return (int)$preloaded[$key];
+            }
+        }
+
+        // Check static cache.
+        $cachekey = $cm->modname . '_' . $cm->instance;
+        if (isset(self::$timemodifiedcache[$cachekey])) {
+            return self::$timemodifiedcache[$cachekey];
+        }
+
         global $DB;
 
         $tablename = $cm->modname;
         $record = $DB->get_record($tablename, ['id' => $cm->instance], 'timemodified');
+        $timemodified = $record ? (int)$record->timemodified : 0;
 
-        return $record ? (int)$record->timemodified : 0;
+        // Cache the result.
+        self::$timemodifiedcache[$cachekey] = $timemodified;
+
+        return $timemodified;
+    }
+
+    /**
+     * Batch load timemodified values for multiple modules.
+     *
+     * Groups modules by type and performs a single query per module type.
+     *
+     * @param array $cmids Array of course module IDs
+     * @param \course_modinfo $modinfo Course mod info object
+     * @return array Keyed by modname_instance => timemodified
+     */
+    private static function batch_load_timemodified(array $cmids, \course_modinfo $modinfo): array {
+        global $DB;
+
+        $result = [];
+
+        // Group cmids by module type.
+        $bymodtype = [];
+        foreach ($cmids as $cmid) {
+            if (!isset($modinfo->cms[$cmid])) {
+                continue;
+            }
+            $cm = $modinfo->cms[$cmid];
+            if (!isset($bymodtype[$cm->modname])) {
+                $bymodtype[$cm->modname] = [];
+            }
+            $bymodtype[$cm->modname][$cm->instance] = $cmid;
+        }
+
+        // Query each module type table once.
+        foreach ($bymodtype as $modname => $instances) {
+            $instanceids = array_keys($instances);
+            if (empty($instanceids)) {
+                continue;
+            }
+
+            list($insql, $inparams) = $DB->get_in_or_equal($instanceids, SQL_PARAMS_NAMED);
+            $records = $DB->get_records_select($modname, "id $insql", $inparams, '', 'id, timemodified');
+
+            foreach ($records as $record) {
+                $key = $modname . '_' . $record->id;
+                $result[$key] = (int)$record->timemodified;
+                // Also update static cache.
+                self::$timemodifiedcache[$key] = (int)$record->timemodified;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Clear the timemodified cache.
+     *
+     * @return void
+     */
+    public static function clear_timemodified_cache(): void {
+        self::$timemodifiedcache = [];
+    }
+
+    /**
+     * Safely decode JSON with validation.
+     *
+     * @param string $json JSON string to decode
+     * @param mixed $default Default value if decoding fails
+     * @param bool $assoc Whether to return associative array
+     * @return mixed Decoded value or default
+     */
+    public static function safe_json_decode(string $json, $default = null, bool $assoc = true) {
+        if (empty($json)) {
+            return $default;
+        }
+
+        $decoded = json_decode($json, $assoc);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            debugging('JSON decode error: ' . json_last_error_msg(), DEBUG_DEVELOPER);
+            return $default;
+        }
+
+        return $decoded ?? $default;
     }
 
     /**
@@ -181,20 +293,29 @@ class section_helper {
             return $changes;
         }
 
-        $sourcemods = [];
+        // Collect cmids for batch loading from source.
+        $sourcecmids = [];
         if (isset($sourcemodinfo->sections[$sourcesection->section])) {
             foreach ($sourcemodinfo->sections[$sourcesection->section] as $cmid) {
                 if (!empty($selectedcmids) && !in_array($cmid, $selectedcmids)) {
                     continue;
                 }
-                $cm = $sourcemodinfo->cms[$cmid];
-                $sourcemods[$cm->name . '_' . $cm->modname] = [
-                    'cmid' => $cmid,
-                    'name' => $cm->name,
-                    'modname' => $cm->modname,
-                    'timemodified' => self::get_module_timemodified($cm),
-                ];
+                $sourcecmids[] = $cmid;
             }
+        }
+
+        // Batch load source timemodified values.
+        $sourcepreloaded = self::batch_load_timemodified($sourcecmids, $sourcemodinfo);
+
+        $sourcemods = [];
+        foreach ($sourcecmids as $cmid) {
+            $cm = $sourcemodinfo->cms[$cmid];
+            $sourcemods[$cm->name . '_' . $cm->modname] = [
+                'cmid' => $cmid,
+                'name' => $cm->name,
+                'modname' => $cm->modname,
+                'timemodified' => self::get_module_timemodified($cm, $sourcepreloaded),
+            ];
         }
 
         // Get destination section modules.
@@ -204,17 +325,24 @@ class section_helper {
             return $changes;
         }
 
-        $destmods = [];
+        // Collect cmids for batch loading from destination.
+        $destcmids = [];
         if (isset($destmodinfo->sections[$destsection->section])) {
-            foreach ($destmodinfo->sections[$destsection->section] as $cmid) {
-                $cm = $destmodinfo->cms[$cmid];
-                $destmods[$cm->name . '_' . $cm->modname] = [
-                    'cmid' => $cmid,
-                    'name' => $cm->name,
-                    'modname' => $cm->modname,
-                    'timemodified' => self::get_module_timemodified($cm),
-                ];
-            }
+            $destcmids = $destmodinfo->sections[$destsection->section];
+        }
+
+        // Batch load destination timemodified values.
+        $destpreloaded = self::batch_load_timemodified($destcmids, $destmodinfo);
+
+        $destmods = [];
+        foreach ($destcmids as $cmid) {
+            $cm = $destmodinfo->cms[$cmid];
+            $destmods[$cm->name . '_' . $cm->modname] = [
+                'cmid' => $cmid,
+                'name' => $cm->name,
+                'modname' => $cm->modname,
+                'timemodified' => self::get_module_timemodified($cm, $destpreloaded),
+            ];
         }
 
         // Find added (in source but not in dest).
@@ -464,37 +592,53 @@ class section_helper {
             $selectedcmids = json_decode($link->imported_cmids, true) ?: [];
         }
 
-        // Get source modules.
-        $sourcemods = [];
+        // Collect source cmids for batch loading.
+        $sourcecmids = [];
         if (isset($sourcemodinfo->sections[$sourcesection->section])) {
             foreach ($sourcemodinfo->sections[$sourcesection->section] as $cmid) {
                 if (!empty($selectedcmids) && !in_array($cmid, $selectedcmids)) {
                     continue;
                 }
-                $cm = $sourcemodinfo->cms[$cmid];
-                $sourcemods[$cmid] = [
-                    'cmid' => $cmid,
-                    'name' => $cm->name,
-                    'modname' => $cm->modname,
-                    'timemodified' => self::get_module_timemodified($cm),
-                    'icon' => $cm->get_icon_url()->out(false),
-                ];
+                $sourcecmids[] = $cmid;
             }
         }
 
+        // Batch load source timemodified values.
+        $sourcepreloaded = self::batch_load_timemodified($sourcecmids, $sourcemodinfo);
+
+        // Get source modules.
+        $sourcemods = [];
+        foreach ($sourcecmids as $cmid) {
+            $cm = $sourcemodinfo->cms[$cmid];
+            $sourcemods[$cmid] = [
+                'cmid' => $cmid,
+                'name' => $cm->name,
+                'modname' => $cm->modname,
+                'timemodified' => self::get_module_timemodified($cm, $sourcepreloaded),
+                'icon' => $cm->get_icon_url()->out(false),
+            ];
+        }
+
+        // Collect destination cmids for batch loading.
+        $destcmids = [];
+        if (isset($destmodinfo->sections[$destsection->section])) {
+            $destcmids = $destmodinfo->sections[$destsection->section];
+        }
+
+        // Batch load destination timemodified values.
+        $destpreloaded = self::batch_load_timemodified($destcmids, $destmodinfo);
+
         // Get destination modules.
         $destmods = [];
-        if (isset($destmodinfo->sections[$destsection->section])) {
-            foreach ($destmodinfo->sections[$destsection->section] as $cmid) {
-                $cm = $destmodinfo->cms[$cmid];
-                $destmods[$cmid] = [
-                    'cmid' => $cmid,
-                    'name' => $cm->name,
-                    'modname' => $cm->modname,
-                    'timemodified' => self::get_module_timemodified($cm),
-                    'icon' => $cm->get_icon_url()->out(false),
-                ];
-            }
+        foreach ($destcmids as $cmid) {
+            $cm = $destmodinfo->cms[$cmid];
+            $destmods[$cmid] = [
+                'cmid' => $cmid,
+                'name' => $cm->name,
+                'modname' => $cm->modname,
+                'timemodified' => self::get_module_timemodified($cm, $destpreloaded),
+                'icon' => $cm->get_icon_url()->out(false),
+            ];
         }
 
         // Analyze changes with conflict detection.

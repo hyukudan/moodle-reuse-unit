@@ -76,10 +76,10 @@ class bulk_sync extends external_api {
         self::validate_context($sourcecontext);
         require_capability('local/reuseunit:export', $sourcecontext);
 
-        // Parse link IDs if provided.
+        // Parse link IDs if provided with safe JSON decoding.
         $specificlinkids = null;
         if (!empty($params['linkids'])) {
-            $specificlinkids = json_decode($params['linkids'], true);
+            $specificlinkids = section_helper::safe_json_decode($params['linkids'], null);
         }
 
         // Get all links for this template.

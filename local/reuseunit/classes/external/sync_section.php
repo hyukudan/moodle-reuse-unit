@@ -123,11 +123,19 @@ class sync_section extends external_api {
         // Get destination section.
         $destsection = $DB->get_record('course_sections', ['id' => $link->sectionid], '*', MUST_EXIST);
 
-        // Parse selective parameters.
-        $addcmids = !empty($params['selectedadded']) ? json_decode($params['selectedadded'], true) : null;
-        $updatecmids = !empty($params['selectedmodified']) ? json_decode($params['selectedmodified'], true) : null;
-        $removecmids = !empty($params['selectedremoved']) ? json_decode($params['selectedremoved'], true) : null;
-        $conflictres = !empty($params['conflictresolutions']) ? json_decode($params['conflictresolutions'], true) : [];
+        // Parse selective parameters with safe JSON decoding.
+        $addcmids = !empty($params['selectedadded'])
+            ? section_helper::safe_json_decode($params['selectedadded'], null)
+            : null;
+        $updatecmids = !empty($params['selectedmodified'])
+            ? section_helper::safe_json_decode($params['selectedmodified'], null)
+            : null;
+        $removecmids = !empty($params['selectedremoved'])
+            ? section_helper::safe_json_decode($params['selectedremoved'], null)
+            : null;
+        $conflictres = !empty($params['conflictresolutions'])
+            ? section_helper::safe_json_decode($params['conflictresolutions'], [])
+            : [];
 
         // Determine if selective mode.
         $isselective = $params['mode'] === 'selective' ||

@@ -50,9 +50,9 @@ class observer {
         $DB->set_field('local_reuseunit_templates', 'source_courseid', 0, ['source_courseid' => $courseid]);
 
         // Delete history entries for this course.
-        // History entries where this course was either source or target.
+        // History entries where this course was either source or destination.
         $DB->delete_records('local_reuseunit_history', ['source_courseid' => $courseid]);
-        $DB->delete_records('local_reuseunit_history', ['target_courseid' => $courseid]);
+        $DB->delete_records('local_reuseunit_history', ['dest_courseid' => $courseid]);
     }
 
     /**
