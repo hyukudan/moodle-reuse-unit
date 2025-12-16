@@ -132,6 +132,9 @@ class link_section extends external_api {
             }
             $DB->update_record('local_reuseunit_links', $existing);
             $linkid = $existing->id;
+
+            // Update module mappings.
+            self::save_initial_mappings($linkid, $template, $section, $selectedcmids);
         } else {
             // Create new link.
             $link = new \stdClass();
@@ -152,6 +155,9 @@ class link_section extends external_api {
             $link->update_available = 0;
             $link->last_checked = time();
             $linkid = $DB->insert_record('local_reuseunit_links', $link);
+
+            // Save initial module mappings.
+            self::save_initial_mappings($linkid, $template, $section, $selectedcmids);
         }
 
         return [
@@ -159,6 +165,81 @@ class link_section extends external_api {
             'linkid' => $linkid,
             'message' => get_string('sectionlinked', 'local_reuseunit'),
         ];
+    }
+
+    /**
+     * Save initial module mappings by matching source and dest modules by name.
+     *
+     * @param int $linkid Link ID
+     * @param \stdClass $template Template record
+     * @param \stdClass $destsection Destination section record
+     * @param array $selectedcmids Source cmids that were imported (empty for full import)
+     * @return void
+     */
+    private static function save_initial_mappings(
+        int $linkid,
+        \stdClass $template,
+        \stdClass $destsection,
+        array $selectedcmids = []
+    ): void {
+        global $DB;
+
+        // Get source section modules.
+        $sourcemodinfo = get_fast_modinfo($template->source_courseid);
+        $sourcesection = $DB->get_record('course_sections', ['id' => $template->source_sectionid]);
+        if (!$sourcesection) {
+            return;
+        }
+
+        $sourcemods = [];
+        if (isset($sourcemodinfo->sections[$sourcesection->section])) {
+            foreach ($sourcemodinfo->sections[$sourcesection->section] as $cmid) {
+                // Skip if partial import and not selected.
+                if (!empty($selectedcmids) && !in_array($cmid, $selectedcmids)) {
+                    continue;
+                }
+                $cm = $sourcemodinfo->cms[$cmid];
+                $key = $cm->modname . '::' . $cm->name;
+                $sourcemods[$key] = [
+                    'cmid' => $cmid,
+                    'modname' => $cm->modname,
+                    'name' => $cm->name,
+                ];
+            }
+        }
+
+        // Get destination section modules.
+        $destmodinfo = get_fast_modinfo($destsection->course);
+        $destmods = [];
+        if (isset($destmodinfo->sections[$destsection->section])) {
+            foreach ($destmodinfo->sections[$destsection->section] as $cmid) {
+                $cm = $destmodinfo->cms[$cmid];
+                $key = $cm->modname . '::' . $cm->name;
+                $destmods[$key] = [
+                    'cmid' => $cmid,
+                    'modname' => $cm->modname,
+                    'name' => $cm->name,
+                ];
+            }
+        }
+
+        // Match source to dest by name and type.
+        $mappings = [];
+        foreach ($sourcemods as $key => $srcmod) {
+            if (isset($destmods[$key])) {
+                $mappings[] = [
+                    'source_cmid' => $srcmod['cmid'],
+                    'dest_cmid' => $destmods[$key]['cmid'],
+                    'modname' => $srcmod['modname'],
+                    'name' => $srcmod['name'],
+                ];
+            }
+        }
+
+        // Save mappings.
+        if (!empty($mappings)) {
+            section_helper::save_module_mappings($linkid, $mappings);
+        }
     }
 
     /**

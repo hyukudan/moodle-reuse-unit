@@ -110,5 +110,56 @@
         <INDEX NAME="templateid_timecreated" UNIQUE="false" FIELDS="templateid, timecreated"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="local_reuseunit_links" COMMENT="Section to template links for synchronization">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course containing the linked section"/>
+        <FIELD NAME="sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Linked section ID"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Template ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who created the link"/>
+        <FIELD NAME="autosync" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Enable automatic sync"/>
+        <FIELD NAME="template_version" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="1" COMMENT="Template version when synced"/>
+        <FIELD NAME="last_synced" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Last sync timestamp"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last modification time"/>
+        <FIELD NAME="imported_cmids" TYPE="text" NOTNULL="false" COMMENT="JSON array of imported cmids from source"/>
+        <FIELD NAME="partial_import" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Whether this was a partial import"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="64" NOTNULL="false" COMMENT="SHA256 hash of source content"/>
+        <FIELD NAME="update_available" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Flag indicating updates available"/>
+        <FIELD NAME="last_checked" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Last update check timestamp"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="sectionid" TYPE="foreign" FIELDS="sectionid" REFTABLE="course_sections" REFFIELDS="id"/>
+        <KEY NAME="templateid" TYPE="foreign" FIELDS="templateid" REFTABLE="local_reuseunit_templates" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_sectionid" UNIQUE="true" FIELDS="courseid, sectionid"/>
+        <INDEX NAME="templateid_autosync" UNIQUE="false" FIELDS="templateid, autosync"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_synced_modules" COMMENT="Tracks module mappings between source and destination for sync">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="linkid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link ID from local_reuseunit_links"/>
+        <FIELD NAME="source_cmid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course module ID in source section"/>
+        <FIELD NAME="dest_cmid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course module ID in destination section"/>
+        <FIELD NAME="modname" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="Module type name (e.g., assign, quiz)"/>
+        <FIELD NAME="source_name" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Module name at sync time"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When the mapping was created"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last sync time"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="linkid" TYPE="foreign" FIELDS="linkid" REFTABLE="local_reuseunit_links" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="linkid_source_cmid" UNIQUE="true" FIELDS="linkid, source_cmid"/>
+        <INDEX NAME="linkid_dest_cmid" UNIQUE="false" FIELDS="linkid, dest_cmid"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

@@ -513,3 +513,27 @@ $string['notification_updateavailable_subject'] = 'Template update available';
 $string['notification_updateavailable_message'] = 'The template "{$a->templatename}" linked to your course "{$a->coursename}" has been updated. Changes: {$a->changes}. Please sync to get the latest content.';
 $string['notification_autosynccompleted_subject'] = 'Section automatically synchronized';
 $string['notification_autosynccompleted_message'] = 'The section linked to template "{$a->templatename}" in your course "{$a->coursename}" has been automatically synchronized with the latest template changes.';
+
+// Sync preview.
+$string['syncpreview_title'] = 'Sync Preview';
+$string['syncpreview_template'] = 'Template';
+$string['syncpreview_nochanges'] = 'No changes to synchronize. The section is up to date.';
+$string['syncpreview_toadd'] = 'to add';
+$string['syncpreview_toupdate'] = 'to update';
+$string['syncpreview_toremove'] = 'to remove';
+$string['syncpreview_local'] = 'local';
+$string['syncpreview_added_title'] = 'New modules (will be added)';
+$string['syncpreview_modified_title'] = 'Changed modules (will be updated)';
+$string['syncpreview_removed_title'] = 'Removed from template';
+$string['syncpreview_removed_help'] = 'These modules were removed from the template. Check the ones you want to delete from your section.';
+$string['syncpreview_local_title'] = 'Local modules (will be preserved)';
+$string['syncpreview_local_help'] = 'These modules were added locally to your section and will not be affected by synchronization.';
+$string['syncpreview_preserved'] = 'Preserved';
+$string['syncpreview_preservelocal'] = 'Preserve local modules not from template';
+$string['syncoptions'] = 'Sync options';
+
+// Sync stats.
+$string['sync_added'] = '{$a} added';
+$string['sync_updated'] = '{$a} updated';
+$string['sync_removed'] = '{$a} removed';
+$string['sync_preserved'] = '{$a} local preserved';

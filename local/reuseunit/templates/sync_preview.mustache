@@ -1,0 +1,237 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_reuseunit/sync_preview
+
+    Template for displaying sync preview with selectable changes.
+
+    Context variables required for this template:
+    * linkid - The link ID
+    * templatename - Name of the template
+    * has_changes - Whether there are changes to sync
+    * added - Array of modules to add
+    * modified - Array of modules to update
+    * removed - Array of modules to remove
+    * local - Array of local modules (will be preserved)
+    * added_count - Count of modules to add
+    * modified_count - Count of modules to update
+    * removed_count - Count of modules to remove
+    * local_count - Count of local modules
+
+    Example context (json):
+    {
+        "linkid": 1,
+        "templatename": "My Template",
+        "has_changes": true,
+        "added": [{"cmid": 10, "name": "New Quiz", "modname": "quiz", "icon": "..."}],
+        "modified": [{"source_cmid": 5, "dest_cmid": 20, "name": "Updated Assignment", "modname": "assign", "icon": "..."}],
+        "removed": [{"source_cmid": 3, "dest_cmid": 15, "name": "Old Forum", "modname": "forum", "icon": "..."}],
+        "local": [{"cmid": 25, "name": "Local Resource", "modname": "resource", "icon": "..."}],
+        "added_count": 1,
+        "modified_count": 1,
+        "removed_count": 1,
+        "local_count": 1
+    }
+}}
+<div class="reuseunit-sync-preview" data-linkid="{{linkid}}">
+    <div class="sync-preview-header mb-3">
+        <h5>{{#str}}syncpreview_title, local_reuseunit{{/str}}</h5>
+        <p class="text-muted">{{#str}}syncpreview_template, local_reuseunit{{/str}}: <strong>{{templatename}}</strong></p>
+    </div>
+
+    {{^has_changes}}
+    <div class="alert alert-info">
+        {{#str}}syncpreview_nochanges, local_reuseunit{{/str}}
+    </div>
+    {{/has_changes}}
+
+    {{#has_changes}}
+    <div class="sync-preview-summary mb-3">
+        <div class="d-flex flex-wrap gap-2">
+            {{#added_count}}
+            <span class="badge bg-success">
+                <i class="fa fa-plus"></i> {{added_count}} {{#str}}syncpreview_toadd, local_reuseunit{{/str}}
+            </span>
+            {{/added_count}}
+            {{#modified_count}}
+            <span class="badge bg-warning text-dark">
+                <i class="fa fa-refresh"></i> {{modified_count}} {{#str}}syncpreview_toupdate, local_reuseunit{{/str}}
+            </span>
+            {{/modified_count}}
+            {{#removed_count}}
+            <span class="badge bg-danger">
+                <i class="fa fa-trash"></i> {{removed_count}} {{#str}}syncpreview_toremove, local_reuseunit{{/str}}
+            </span>
+            {{/removed_count}}
+            {{#local_count}}
+            <span class="badge bg-secondary">
+                <i class="fa fa-lock"></i> {{local_count}} {{#str}}syncpreview_local, local_reuseunit{{/str}}
+            </span>
+            {{/local_count}}
+        </div>
+    </div>
+
+    {{! Modules to Add }}
+    {{#added.length}}
+    <div class="sync-preview-section mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0 text-success">
+                <i class="fa fa-plus-circle"></i> {{#str}}syncpreview_added_title, local_reuseunit{{/str}}
+            </h6>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input sync-select-all-added" id="select-all-added" checked>
+                <label class="form-check-label" for="select-all-added">{{#str}}selectall, local_reuseunit{{/str}}</label>
+            </div>
+        </div>
+        <div class="list-group">
+            {{#added}}
+            <label class="list-group-item list-group-item-action d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-2 sync-item-added"
+                       data-cmid="{{cmid}}" data-type="added" checked>
+                {{#icon}}<img src="{{icon}}" class="activityicon me-2" alt="">{{/icon}}
+                <span class="flex-grow-1">{{name}}</span>
+                <span class="badge bg-light text-dark">{{modname}}</span>
+            </label>
+            {{/added}}
+        </div>
+    </div>
+    {{/added.length}}
+
+    {{! Modules to Update }}
+    {{#modified.length}}
+    <div class="sync-preview-section mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0 text-warning">
+                <i class="fa fa-refresh"></i> {{#str}}syncpreview_modified_title, local_reuseunit{{/str}}
+            </h6>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input sync-select-all-modified" id="select-all-modified" checked>
+                <label class="form-check-label" for="select-all-modified">{{#str}}selectall, local_reuseunit{{/str}}</label>
+            </div>
+        </div>
+        <div class="list-group">
+            {{#modified}}
+            <label class="list-group-item list-group-item-action d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-2 sync-item-modified"
+                       data-source-cmid="{{source_cmid}}" data-dest-cmid="{{dest_cmid}}" data-type="modified" checked>
+                {{#icon}}<img src="{{icon}}" class="activityicon me-2" alt="">{{/icon}}
+                <span class="flex-grow-1">{{name}}</span>
+                <span class="badge bg-light text-dark">{{modname}}</span>
+            </label>
+            {{/modified}}
+        </div>
+    </div>
+    {{/modified.length}}
+
+    {{! Modules to Remove }}
+    {{#removed.length}}
+    <div class="sync-preview-section mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0 text-danger">
+                <i class="fa fa-trash"></i> {{#str}}syncpreview_removed_title, local_reuseunit{{/str}}
+            </h6>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input sync-select-all-removed" id="select-all-removed">
+                <label class="form-check-label" for="select-all-removed">{{#str}}selectall, local_reuseunit{{/str}}</label>
+            </div>
+        </div>
+        <p class="text-muted small">{{#str}}syncpreview_removed_help, local_reuseunit{{/str}}</p>
+        <div class="list-group">
+            {{#removed}}
+            <label class="list-group-item list-group-item-action d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-2 sync-item-removed"
+                       data-source-cmid="{{source_cmid}}" data-dest-cmid="{{dest_cmid}}" data-type="removed">
+                {{#icon}}<img src="{{icon}}" class="activityicon me-2" alt="">{{/icon}}
+                <span class="flex-grow-1">{{name}}</span>
+                <span class="badge bg-light text-dark">{{modname}}</span>
+            </label>
+            {{/removed}}
+        </div>
+    </div>
+    {{/removed.length}}
+
+    {{! Local Modules }}
+    {{#local.length}}
+    <div class="sync-preview-section mb-3">
+        <h6 class="mb-2 text-secondary">
+            <i class="fa fa-lock"></i> {{#str}}syncpreview_local_title, local_reuseunit{{/str}}
+        </h6>
+        <p class="text-muted small">{{#str}}syncpreview_local_help, local_reuseunit{{/str}}</p>
+        <div class="list-group">
+            {{#local}}
+            <div class="list-group-item d-flex align-items-center bg-light">
+                {{#icon}}<img src="{{icon}}" class="activityicon me-2" alt="">{{/icon}}
+                <span class="flex-grow-1">{{name}}</span>
+                <span class="badge bg-secondary">{{modname}}</span>
+                <span class="badge bg-info ms-1">{{#str}}syncpreview_preserved, local_reuseunit{{/str}}</span>
+            </div>
+            {{/local}}
+        </div>
+    </div>
+    {{/local.length}}
+
+    {{! Sync Options }}
+    <div class="sync-preview-options mb-3 p-3 border rounded bg-light">
+        <h6 class="mb-2">{{#str}}syncoptions, local_reuseunit{{/str}}</h6>
+        <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="sync-preserve-local" checked>
+            <label class="form-check-label" for="sync-preserve-local">
+                {{#str}}syncpreview_preservelocal, local_reuseunit{{/str}}
+            </label>
+        </div>
+    </div>
+
+    {{! Action Buttons }}
+    <div class="sync-preview-actions d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-secondary sync-cancel-btn">
+            {{#str}}cancel, core{{/str}}
+        </button>
+        <button type="button" class="btn btn-primary sync-execute-btn">
+            <i class="fa fa-sync"></i> {{#str}}syncnow, local_reuseunit{{/str}}
+        </button>
+    </div>
+    {{/has_changes}}
+</div>
+
+<style>
+.reuseunit-sync-preview .list-group-item {
+    cursor: pointer;
+}
+.reuseunit-sync-preview .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+.reuseunit-sync-preview .activityicon {
+    width: 24px;
+    height: 24px;
+}
+.reuseunit-sync-preview .sync-preview-section {
+    border-left: 3px solid #dee2e6;
+    padding-left: 1rem;
+}
+.reuseunit-sync-preview .sync-preview-section:has(.text-success) {
+    border-left-color: #198754;
+}
+.reuseunit-sync-preview .sync-preview-section:has(.text-warning) {
+    border-left-color: #ffc107;
+}
+.reuseunit-sync-preview .sync-preview-section:has(.text-danger) {
+    border-left-color: #dc3545;
+}
+.reuseunit-sync-preview .sync-preview-section:has(.text-secondary) {
+    border-left-color: #6c757d;
+}
+</style>

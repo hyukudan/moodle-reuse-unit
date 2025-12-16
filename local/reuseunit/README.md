@@ -228,6 +228,25 @@ Database tables are automatically dropped by Moodle during uninstallation.
 
 ## Changelog
 
+### Version 0.7.0
+- **Smart Synchronization System**:
+  - Module tracking: Tracks which destination modules came from the template
+  - Preserve local content: Sync only updates modules from template, preserving local additions
+  - Sync preview: Visual preview of all changes before synchronization
+  - Selective sync: Choose which modules to add, update, or remove
+  - New `local_reuseunit_synced_modules` table for module mappings
+- **Sync Preview Features**:
+  - Shows modules to be added (new in template)
+  - Shows modules to be updated (changed in template)
+  - Shows modules to be removed (deleted from template)
+  - Shows local modules that will be preserved
+  - Checkbox selection for each change type
+- **Improved User Experience**:
+  - Modal dialog for sync preview
+  - Detailed sync statistics (added, updated, removed, preserved)
+  - Select all/deselect all for each category
+  - Real-time feedback during synchronization
+
 ### Version 0.6.1
 - Added automatic change detection for linked sections
 - New scheduled task checks for template updates every 6 hours

@@ -231,6 +231,14 @@ $functions = [
         'loginrequired' => true,
     ],
 
+    'local_reuseunit_get_sync_preview' => [
+        'classname' => 'local_reuseunit\external\get_sync_preview',
+        'description' => 'Get sync preview for a linked section',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
     // Scheduled import services.
     'local_reuseunit_schedule_import' => [
         'classname' => 'local_reuseunit\external\schedule_import',
@@ -302,6 +310,7 @@ $services = [
             'local_reuseunit_unlink_section',
             'local_reuseunit_sync_section',
             'local_reuseunit_get_linked_sections',
+            'local_reuseunit_get_sync_preview',
             'local_reuseunit_schedule_import',
             'local_reuseunit_get_scheduled_imports',
             'local_reuseunit_cancel_scheduled_import',

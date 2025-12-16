@@ -513,3 +513,27 @@ $string['notification_updateavailable_subject'] = 'Actualización de plantilla d
 $string['notification_updateavailable_message'] = 'La plantilla "{$a->templatename}" vinculada a tu curso "{$a->coursename}" ha sido actualizada. Cambios: {$a->changes}. Por favor sincroniza para obtener el contenido más reciente.';
 $string['notification_autosynccompleted_subject'] = 'Sección sincronizada automáticamente';
 $string['notification_autosynccompleted_message'] = 'La sección vinculada a la plantilla "{$a->templatename}" en tu curso "{$a->coursename}" ha sido sincronizada automáticamente con los últimos cambios de la plantilla.';
+
+// Vista previa de sincronización.
+$string['syncpreview_title'] = 'Vista previa de sincronización';
+$string['syncpreview_template'] = 'Plantilla';
+$string['syncpreview_nochanges'] = 'No hay cambios para sincronizar. La sección está actualizada.';
+$string['syncpreview_toadd'] = 'para añadir';
+$string['syncpreview_toupdate'] = 'para actualizar';
+$string['syncpreview_toremove'] = 'para eliminar';
+$string['syncpreview_local'] = 'local';
+$string['syncpreview_added_title'] = 'Nuevos módulos (se añadirán)';
+$string['syncpreview_modified_title'] = 'Módulos modificados (se actualizarán)';
+$string['syncpreview_removed_title'] = 'Eliminados de la plantilla';
+$string['syncpreview_removed_help'] = 'Estos módulos fueron eliminados de la plantilla. Marca los que quieras eliminar de tu sección.';
+$string['syncpreview_local_title'] = 'Módulos locales (se preservarán)';
+$string['syncpreview_local_help'] = 'Estos módulos fueron añadidos localmente a tu sección y no serán afectados por la sincronización.';
+$string['syncpreview_preserved'] = 'Preservado';
+$string['syncpreview_preservelocal'] = 'Preservar módulos locales que no vienen de la plantilla';
+$string['syncoptions'] = 'Opciones de sincronización';
+
+// Estadísticas de sincronización.
+$string['sync_added'] = '{$a} añadidos';
+$string['sync_updated'] = '{$a} actualizados';
+$string['sync_removed'] = '{$a} eliminados';
+$string['sync_preserved'] = '{$a} locales preservados';

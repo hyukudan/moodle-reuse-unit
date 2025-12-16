@@ -141,6 +141,27 @@ class ImportWizard {
 
         // Batch import button.
         document.getElementById('btn-batch-import')?.addEventListener('click', () => this.performBatchImport());
+
+        // Sync preview buttons.
+        document.addEventListener('click', (e) => {
+            // Show sync preview button.
+            if (e.target.closest('.show-sync-preview')) {
+                const btn = e.target.closest('.show-sync-preview');
+                const linkid = btn.dataset.linkid;
+                if (linkid) {
+                    this.showSyncPreview(parseInt(linkid));
+                }
+            }
+
+            // Sync now button from linked sections.
+            if (e.target.closest('.sync-now-btn')) {
+                const btn = e.target.closest('.sync-now-btn');
+                const linkid = btn.dataset.linkid;
+                if (linkid) {
+                    this.showSyncPreview(parseInt(linkid));
+                }
+            }
+        });
     }
 
     /**
@@ -995,6 +1016,228 @@ class ImportWizard {
         } catch (error) {
             Notification.exception(error);
             this.goToStep(3);
+        }
+    }
+
+    /**
+     * Show sync preview modal for a linked section.
+     *
+     * @param {number} linkid - Link ID
+     */
+    async showSyncPreview(linkid) {
+        try {
+            // Load sync preview data.
+            const preview = await Ajax.call([{
+                methodname: 'local_reuseunit_get_sync_preview',
+                args: {linkid}
+            }])[0];
+
+            // Render the sync preview template.
+            const html = await Templates.render('local_reuseunit/sync_preview', preview);
+
+            // Show in modal or panel.
+            const container = document.getElementById('sync-preview-container') ||
+                              this.createSyncPreviewModal();
+            container.querySelector('.modal-body').innerHTML = html;
+            container.style.display = 'block';
+            container.classList.add('show');
+
+            // Bind events for the preview.
+            this.bindSyncPreviewEvents(container, linkid);
+
+        } catch (error) {
+            Notification.exception(error);
+        }
+    }
+
+    /**
+     * Create sync preview modal if it doesn't exist.
+     *
+     * @returns {HTMLElement} Modal element
+     */
+    createSyncPreviewModal() {
+        let modal = document.getElementById('sync-preview-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'sync-preview-modal';
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Synchronization Preview</h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close button handler.
+            modal.querySelector('.close').addEventListener('click', () => {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            });
+        }
+        return modal;
+    }
+
+    /**
+     * Bind events for sync preview controls.
+     *
+     * @param {HTMLElement} container - Container element
+     * @param {number} linkid - Link ID
+     */
+    bindSyncPreviewEvents(container, linkid) {
+        // Select all checkboxes for each type.
+        container.querySelectorAll('.sync-select-all-added').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checked = checkbox.checked;
+                container.querySelectorAll('.sync-item-added').forEach(item => {
+                    item.checked = checked;
+                });
+            });
+        });
+
+        container.querySelectorAll('.sync-select-all-modified').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checked = checkbox.checked;
+                container.querySelectorAll('.sync-item-modified').forEach(item => {
+                    item.checked = checked;
+                });
+            });
+        });
+
+        container.querySelectorAll('.sync-select-all-removed').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checked = checkbox.checked;
+                container.querySelectorAll('.sync-item-removed').forEach(item => {
+                    item.checked = checked;
+                });
+            });
+        });
+
+        // Update select-all state when individual items change.
+        container.querySelectorAll('.sync-item-added, .sync-item-modified, .sync-item-removed').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateSyncSelectAllState(container);
+            });
+        });
+
+        // Cancel button.
+        container.querySelector('.sync-cancel-btn')?.addEventListener('click', () => {
+            container.style.display = 'none';
+            container.classList.remove('show');
+        });
+
+        // Execute sync button.
+        container.querySelector('.sync-execute-btn')?.addEventListener('click', () => {
+            this.executeSelectiveSync(container, linkid);
+        });
+    }
+
+    /**
+     * Update the select-all checkbox state based on individual selections.
+     *
+     * @param {HTMLElement} container - Container element
+     */
+    updateSyncSelectAllState(container) {
+        ['added', 'modified', 'removed'].forEach(type => {
+            const items = container.querySelectorAll(`.sync-item-${type}`);
+            const selectAll = container.querySelector(`.sync-select-all-${type}`);
+
+            if (!selectAll || items.length === 0) {
+                return;
+            }
+
+            const checkedCount = container.querySelectorAll(`.sync-item-${type}:checked`).length;
+
+            if (checkedCount === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (checkedCount === items.length) {
+                selectAll.checked = true;
+                selectAll.indeterminate = false;
+            } else {
+                selectAll.checked = false;
+                selectAll.indeterminate = true;
+            }
+        });
+    }
+
+    /**
+     * Execute selective synchronization.
+     *
+     * @param {HTMLElement} container - Container element
+     * @param {number} linkid - Link ID
+     */
+    async executeSelectiveSync(container, linkid) {
+        // Gather selected items.
+        const selectedAdded = [];
+        const selectedModified = [];
+        const selectedRemoved = [];
+
+        container.querySelectorAll('.sync-item-added:checked').forEach(cb => {
+            selectedAdded.push(parseInt(cb.dataset.cmid));
+        });
+
+        container.querySelectorAll('.sync-item-modified:checked').forEach(cb => {
+            selectedModified.push(parseInt(cb.dataset.sourceCmid));
+        });
+
+        container.querySelectorAll('.sync-item-removed:checked').forEach(cb => {
+            selectedRemoved.push(parseInt(cb.dataset.destCmid));
+        });
+
+        const preserveLocal = container.querySelector('#sync-preserve-local')?.checked ?? true;
+
+        // Show loading state.
+        const executeBtn = container.querySelector('.sync-execute-btn');
+        const originalText = executeBtn.innerHTML;
+        executeBtn.disabled = true;
+        executeBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Syncing...';
+
+        try {
+            const result = await Ajax.call([{
+                methodname: 'local_reuseunit_sync_section',
+                args: {
+                    linkid,
+                    mode: 'selective',
+                    includenew: false,
+                    selectedadded: JSON.stringify(selectedAdded),
+                    selectedmodified: JSON.stringify(selectedModified),
+                    selectedremoved: JSON.stringify(selectedRemoved),
+                    preservelocal: preserveLocal,
+                }
+            }])[0];
+
+            if (result.success) {
+                // Show success message.
+                const successMsg = await getString('synccompleted', 'local_reuseunit');
+                Notification.addNotification({
+                    message: result.message || successMsg,
+                    type: 'success',
+                });
+
+                // Close modal.
+                container.style.display = 'none';
+                container.classList.remove('show');
+
+                // Reload the page to reflect changes.
+                window.location.reload();
+            } else {
+                throw new Error(result.message);
+            }
+
+        } catch (error) {
+            Notification.exception(error);
+        } finally {
+            executeBtn.disabled = false;
+            executeBtn.innerHTML = originalText;
         }
     }
 }

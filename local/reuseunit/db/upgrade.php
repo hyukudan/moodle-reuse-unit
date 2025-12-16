@@ -236,5 +236,36 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025121603, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2025121604) {
+        // Define table local_reuseunit_synced_modules for module mapping tracking.
+        $table = new xmldb_table('local_reuseunit_synced_modules');
+
+        // Adding fields.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('linkid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('source_cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('dest_cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('modname', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('source_name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('linkid', XMLDB_KEY_FOREIGN, ['linkid'], 'local_reuseunit_links', ['id']);
+
+        // Adding indexes.
+        $table->add_index('linkid_source_cmid', XMLDB_INDEX_UNIQUE, ['linkid', 'source_cmid']);
+        $table->add_index('linkid_dest_cmid', XMLDB_INDEX_NOTUNIQUE, ['linkid', 'dest_cmid']);
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121604, 'local', 'reuseunit');
+    }
+
     return true;
 }
