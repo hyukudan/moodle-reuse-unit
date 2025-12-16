@@ -118,4 +118,86 @@ class local_reuseunit_generator extends testing_module_generator {
 
         return $record;
     }
+
+    /**
+     * Create a section link (for synchronization).
+     *
+     * @param array $data Link data
+     * @return stdClass The created link record
+     */
+    public function create_link(array $data = []): stdClass {
+        global $DB, $USER;
+
+        $defaults = [
+            'courseid' => 1,
+            'sectionid' => 1,
+            'templateid' => 1,
+            'userid' => $USER->id,
+            'autosync' => 0,
+            'template_version' => 1,
+            'last_synced' => time(),
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ];
+
+        $record = (object) array_merge($defaults, $data);
+        $record->id = $DB->insert_record('local_reuseunit_links', $record);
+
+        return $record;
+    }
+
+    /**
+     * Create a scheduled import.
+     *
+     * @param array $data Scheduled import data
+     * @return stdClass The created scheduled import record
+     */
+    public function create_scheduled(array $data = []): stdClass {
+        global $DB, $USER;
+
+        $defaults = [
+            'userid' => $USER->id,
+            'dest_courseid' => 1,
+            'import_data' => '[]',
+            'scheduled_time' => time() + 3600,
+            'status' => 'pending',
+            'started_at' => null,
+            'completed_at' => null,
+            'result_data' => null,
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ];
+
+        $record = (object) array_merge($defaults, $data);
+        $record->id = $DB->insert_record('local_reuseunit_scheduled', $record);
+
+        return $record;
+    }
+
+    /**
+     * Create a template version.
+     *
+     * @param array $data Version data
+     * @return stdClass The created version record
+     */
+    public function create_version(array $data = []): stdClass {
+        global $DB, $USER;
+
+        $defaults = [
+            'templateid' => 1,
+            'version' => 1,
+            'userid' => $USER->id,
+            'changelog' => 'Initial version',
+            'source_courseid' => 1,
+            'source_sectionid' => 1,
+            'activities_count' => 0,
+            'resources_count' => 0,
+            'timecreated' => time(),
+        ];
+
+        $record = (object) array_merge($defaults, $data);
+        $record->id = $DB->insert_record('local_reuseunit_versions', $record);
+
+        return $record;
+    }
 }

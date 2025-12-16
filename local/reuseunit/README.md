@@ -158,9 +158,79 @@ The plugin provides AJAX web services for:
 - Approval workflow
 - Synchronization
 
+## Scheduled Tasks
+
+The plugin includes the following scheduled tasks:
+
+| Task | Description | Default Schedule |
+|------|-------------|------------------|
+| `local_reuseunit\task\cleanup` | Cleans up old data (history, orphaned records) | Weekly (Sunday 3:30 AM) |
+| `local_reuseunit\task\scheduled_import` | Processes scheduled imports | Adhoc (runs at scheduled time) |
+
+Configure scheduled tasks at Site administration > Server > Scheduled tasks.
+
+## Event Observers
+
+The plugin automatically cleans up data when:
+- **Course is deleted**: Removes links, scheduled imports, and history for that course
+- **User is deleted**: Removes favorites, history, and personal templates
+- **Section is deleted**: Removes synchronization links to that section
+- **Category is deleted**: Downgrades category templates to personal
+
+## Backup & Restore
+
+The plugin integrates with Moodle's backup/restore system:
+- Section synchronization links are included in course backups
+- Links are restored when the course is restored (if templates still exist)
+- Works with both full course and section-level backups
+
+## Testing
+
+### PHPUnit Tests
+```bash
+vendor/bin/phpunit local/reuseunit/tests/
+```
+
+Available test classes:
+- `local_reuseunit\privacy_test` - Privacy API tests
+- `local_reuseunit\template_test` - Template management tests
+- `local_reuseunit\external_test` - Web service tests
+
+### Behat Tests
+```bash
+vendor/bin/behat --config /path/to/moodledata/behat/behat.yml --tags @local_reuseunit
+```
+
+Feature files:
+- `import_section.feature` - Section import tests
+- `templates.feature` - Template management tests
+- `synchronization.feature` - Section sync tests
+- `scheduled_imports.feature` - Scheduled import tests
+
+## Uninstallation
+
+The plugin includes a proper uninstall script that:
+- Removes all plugin files from the file storage
+- Cleans up adhoc tasks
+- Removes all plugin configuration
+- Removes user preferences
+
+Database tables are automatically dropped by Moodle during uninstallation.
+
 ## Changelog
 
-### Version 0.4.0
+### Version 0.5.2
+- Added Behat integration tests for synchronization and scheduled imports
+- Added backup/restore integration for section links
+- Added uninstall script for clean plugin removal
+- Updated test data generator with link and scheduled methods
+
+### Version 0.5.1
+- Added scheduled cleanup task
+- Added event observers for course/user/section deletion
+- Added PHPUnit tests for Privacy API
+
+### Version 0.5.0
 - Added comparison UI for sections and template versions
 - Added Privacy API implementation (GDPR compliance)
 - Enhanced settings page with more configuration options
@@ -186,6 +256,26 @@ The plugin provides AJAX web services for:
 - Initial release
 - Basic import functionality
 - Template system
+
+## Development
+
+### File Structure
+```
+local/reuseunit/
+├── amd/src/              # JavaScript modules (AMD)
+├── backup/moodle2/       # Backup/restore integration
+├── classes/
+│   ├── external/         # Web service definitions
+│   ├── privacy/          # GDPR Privacy API
+│   └── task/             # Scheduled tasks
+├── cli/                  # Command-line scripts
+├── db/                   # Database definitions
+├── lang/                 # Language files (en, es, pt_br)
+├── templates/            # Mustache templates
+└── tests/
+    ├── behat/            # Behat feature files
+    └── generator/        # Test data generator
+```
 
 ## Support
 
