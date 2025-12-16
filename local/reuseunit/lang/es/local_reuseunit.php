@@ -391,6 +391,7 @@ $string['viewdetails'] = 'Ver detalles';
 $string['error_pasttime'] = 'La hora programada no puede ser en el pasado';
 $string['error_cannotcancel'] = 'Esta importación programada no se puede cancelar';
 $string['task_scheduledimport'] = 'Procesar importación de sección programada';
+$string['task_cleanup'] = 'Limpiar datos antiguos de Reuse Unit';
 
 // Diff comparison.
 $string['compare'] = 'Comparar';

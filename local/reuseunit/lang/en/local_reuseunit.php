@@ -391,6 +391,7 @@ $string['viewdetails'] = 'View details';
 $string['error_pasttime'] = 'Scheduled time cannot be in the past';
 $string['error_cannotcancel'] = 'This scheduled import cannot be cancelled';
 $string['task_scheduledimport'] = 'Process scheduled section import';
+$string['task_cleanup'] = 'Clean up old Reuse Unit data';
 
 // Diff comparison.
 $string['compare'] = 'Compare';

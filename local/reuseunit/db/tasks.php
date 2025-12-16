@@ -15,17 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data.
+ * Scheduled tasks for local_reuseunit.
  *
  * @package    local_reuseunit
- * @copyright  2024 Your Name
+ * @copyright  2024 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_reuseunit';
-$plugin->version = 2024121611;
-$plugin->requires = 2022112800; // Moodle 4.0+
-$plugin->maturity = MATURITY_BETA;
-$plugin->release = '0.5.1';
+$tasks = [
+    [
+        'classname' => 'local_reuseunit\task\cleanup',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '0', // Run weekly on Sunday at 3:30 AM.
+        'disabled' => 0,
+    ],
+];

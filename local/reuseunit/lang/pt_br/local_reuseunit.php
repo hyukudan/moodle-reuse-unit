@@ -391,6 +391,7 @@ $string['viewdetails'] = 'Ver detalhes';
 $string['error_pasttime'] = 'A hora agendada não pode ser no passado';
 $string['error_cannotcancel'] = 'Esta importação agendada não pode ser cancelada';
 $string['task_scheduledimport'] = 'Processar importação de seção agendada';
+$string['task_cleanup'] = 'Limpar dados antigos do Reuse Unit';
 
 // Diff comparison.
 $string['compare'] = 'Comparar';
