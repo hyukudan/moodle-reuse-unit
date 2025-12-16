@@ -26,6 +26,8 @@ use external_single_structure;
 use external_value;
 use context_course;
 use local_reuseunit\section_helper;
+use local_reuseunit\notification_helper;
+use local_reuseunit\audit_logger;
 
 /**
  * External function to sync a linked section with its template.
@@ -389,6 +391,22 @@ class sync_section extends external_api {
                 $hashbefore ?? '',
                 ''
             );
+
+            // Log failure in audit trail.
+            audit_logger::log_sync_operation(
+                audit_logger::ACTION_SYNC_FAILED,
+                $USER->id,
+                $params['linkid'],
+                $stats,
+                $e->getMessage()
+            );
+
+            // Send failure notification to user.
+            $syncdata = new \stdClass();
+            $syncdata->courseid = $link->courseid;
+            $syncdata->templateid = $link->templateid;
+            $syncdata->error = $e->getMessage();
+            notification_helper::notify_sync_failed($USER->id, $syncdata);
 
             return [
                 'success' => false,

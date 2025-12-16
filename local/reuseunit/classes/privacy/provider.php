@@ -108,6 +108,29 @@ class provider implements
             'privacy:metadata:links'
         );
 
+        // Sync history table.
+        $collection->add_database_table(
+            'local_reuseunit_sync_history',
+            [
+                'userid' => 'privacy:metadata:synchistory:userid',
+                'sync_mode' => 'privacy:metadata:synchistory:sync_mode',
+                'timecreated' => 'privacy:metadata:synchistory:timecreated',
+            ],
+            'privacy:metadata:synchistory'
+        );
+
+        // Audit log table.
+        $collection->add_database_table(
+            'local_reuseunit_audit',
+            [
+                'userid' => 'privacy:metadata:audit:userid',
+                'action' => 'privacy:metadata:audit:action',
+                'ipaddress' => 'privacy:metadata:audit:ipaddress',
+                'timecreated' => 'privacy:metadata:audit:timecreated',
+            ],
+            'privacy:metadata:audit'
+        );
+
         return $collection;
     }
 
@@ -167,6 +190,14 @@ class provider implements
 
         // Add users from links table.
         $sql = "SELECT userid FROM {local_reuseunit_links} WHERE userid = :userid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Add users from sync history table.
+        $sql = "SELECT userid FROM {local_reuseunit_sync_history} WHERE userid = :userid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Add users from audit table.
+        $sql = "SELECT userid FROM {local_reuseunit_audit} WHERE userid = :userid";
         $userlist->add_from_sql('userid', $sql, $params);
     }
 
@@ -302,6 +333,8 @@ class provider implements
         $DB->delete_records('local_reuseunit_favorites', ['userid' => $userid]);
         $DB->delete_records('local_reuseunit_scheduled', ['userid' => $userid]);
         $DB->delete_records('local_reuseunit_links', ['userid' => $userid]);
+        $DB->delete_records('local_reuseunit_sync_history', ['userid' => $userid]);
+        $DB->delete_records('local_reuseunit_audit', ['userid' => $userid]);
     }
 
     /**
@@ -324,6 +357,8 @@ class provider implements
         $DB->delete_records('local_reuseunit_favorites', ['userid' => $user->id]);
         $DB->delete_records('local_reuseunit_scheduled', ['userid' => $user->id]);
         $DB->delete_records('local_reuseunit_links', ['userid' => $user->id]);
+        $DB->delete_records('local_reuseunit_sync_history', ['userid' => $user->id]);
+        $DB->delete_records('local_reuseunit_audit', ['userid' => $user->id]);
     }
 
     /**
@@ -354,5 +389,7 @@ class provider implements
         $DB->delete_records_select('local_reuseunit_favorites', "userid $insql", $inparams);
         $DB->delete_records_select('local_reuseunit_scheduled', "userid $insql", $inparams);
         $DB->delete_records_select('local_reuseunit_links', "userid $insql", $inparams);
+        $DB->delete_records_select('local_reuseunit_sync_history', "userid $insql", $inparams);
+        $DB->delete_records_select('local_reuseunit_audit', "userid $insql", $inparams);
     }
 }

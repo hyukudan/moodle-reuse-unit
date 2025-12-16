@@ -133,6 +133,30 @@ class cleanup extends \core\task\scheduled_task {
             $totaldeleted += $count;
         }
 
+        // Clean up old audit logs (keep at least 1 year).
+        $auditdays = max($cleanupdays, 365);
+        $auditcutoff = time() - ($auditdays * 24 * 60 * 60);
+        $where = "timecreated < :cutoff";
+        $params = ['cutoff' => $auditcutoff];
+        $count = $DB->count_records_select('local_reuseunit_audit', $where, $params);
+        if ($count > 0) {
+            $DB->delete_records_select('local_reuseunit_audit', $where, $params);
+            mtrace("Deleted {$count} old audit log records.");
+            $totaldeleted += $count;
+        }
+
+        // Clean up old sync history (keep at least 90 days).
+        $synchisdays = max($cleanupdays, 90);
+        $synchiscutoff = time() - ($synchisdays * 24 * 60 * 60);
+        $where = "timecreated < :cutoff";
+        $params = ['cutoff' => $synchiscutoff];
+        $count = $DB->count_records_select('local_reuseunit_sync_history', $where, $params);
+        if ($count > 0) {
+            $DB->delete_records_select('local_reuseunit_sync_history', $where, $params);
+            mtrace("Deleted {$count} old sync history records.");
+            $totaldeleted += $count;
+        }
+
         mtrace("Cleanup completed. Total records deleted: {$totaldeleted}");
     }
 }
