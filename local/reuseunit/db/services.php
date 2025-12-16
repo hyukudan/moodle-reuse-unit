@@ -105,6 +105,31 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Section management services.
+    'local_reuseunit_duplicate_section' => [
+        'classname' => 'local_reuseunit\external\duplicate_section',
+        'description' => 'Duplicate a section within the same course',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_export_section' => [
+        'classname' => 'local_reuseunit\external\export_section',
+        'description' => 'Export a section as .mbz backup file',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_search_sections' => [
+        'classname' => 'local_reuseunit\external\search_sections',
+        'description' => 'Search for sections by name and activity types',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -120,6 +145,9 @@ $services = [
             'local_reuseunit_get_templates',
             'local_reuseunit_delete_template',
             'local_reuseunit_import_template',
+            'local_reuseunit_duplicate_section',
+            'local_reuseunit_export_section',
+            'local_reuseunit_search_sections',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

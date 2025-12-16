@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-12-16
+
+### Added
+- **Duplicate Section**: Duplicate sections within the same course with position options
+- **Export Section**: Export individual sections as .mbz backup files for download
+- **Advanced Search**: Search sections across all courses by name and activity type
+- Activity type filters: Quiz, Assignment, Forum, Page, File, URL, Lesson, H5P, SCORM
+- New UI buttons in course edit mode: Duplicate, Export
+
+### Changed
+- Enhanced import wizard with advanced search panel
+- Improved section selection with activity type badges
+
 ## [0.1.0] - 2024-12-16
 
 ### Added

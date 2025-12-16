@@ -82,6 +82,91 @@
                             <input type="hidden" id="source-course-id" value="">
                         </div>
 
+                        {{! Advanced search toggle }}
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-link btn-sm p-0" id="toggle-advanced-search" aria-expanded="false">
+                                <i class="fa fa-chevron-down mr-1"></i> {{#str}}advancedsearch, local_reuseunit{{/str}}
+                            </button>
+                        </div>
+
+                        {{! Advanced search panel }}
+                        <div id="advanced-search-panel" class="d-none mt-3 p-3 border rounded bg-light">
+                            <div class="form-group">
+                                <label for="section-search-input">{{#str}}searchsections, local_reuseunit{{/str}}</label>
+                                <input type="text" id="section-search-input" class="form-control"
+                                       placeholder="{{#str}}searchplaceholder, local_reuseunit{{/str}}">
+                            </div>
+
+                            <div class="form-group">
+                                <label>{{#str}}filterbyactivity, local_reuseunit{{/str}}</label>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-quiz" value="quiz">
+                                            <label class="custom-control-label" for="filter-quiz">{{#pix}}icon, mod_quiz{{/pix}} Quiz</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-assign" value="assign">
+                                            <label class="custom-control-label" for="filter-assign">{{#pix}}icon, mod_assign{{/pix}} Assignment</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-forum" value="forum">
+                                            <label class="custom-control-label" for="filter-forum">{{#pix}}icon, mod_forum{{/pix}} Forum</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-page" value="page">
+                                            <label class="custom-control-label" for="filter-page">{{#pix}}icon, mod_page{{/pix}} Page</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-resource" value="resource">
+                                            <label class="custom-control-label" for="filter-resource">{{#pix}}icon, mod_resource{{/pix}} File</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-url" value="url">
+                                            <label class="custom-control-label" for="filter-url">{{#pix}}icon, mod_url{{/pix}} URL</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-lesson" value="lesson">
+                                            <label class="custom-control-label" for="filter-lesson">{{#pix}}icon, mod_lesson{{/pix}} Lesson</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-h5pactivity" value="h5pactivity">
+                                            <label class="custom-control-label" for="filter-h5pactivity">{{#pix}}icon, mod_h5pactivity{{/pix}} H5P</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input activity-type-filter" id="filter-scorm" value="scorm">
+                                            <label class="custom-control-label" for="filter-scorm">{{#pix}}icon, mod_scorm{{/pix}} SCORM</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-filters">
+                                    <i class="fa fa-times mr-1"></i> {{#str}}clearfilters, local_reuseunit{{/str}}
+                                </button>
+                            </div>
+
+                            {{! Search results }}
+                            <div id="section-search-results" class="mt-3 d-none border rounded bg-white" style="max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+
                         <div class="form-group mt-4" id="sections-container" style="display: none;">
                             <label>{{#str}}availablesections, local_reuseunit{{/str}}</label>
                             <div id="sections-list" class="reuseunit-sections-list"></div>

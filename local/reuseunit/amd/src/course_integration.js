@@ -52,6 +52,8 @@ export const init = (config) => {
 const addImportButtons = async () => {
     const importText = await getString('importunithere', 'local_reuseunit');
     const saveTemplateText = await getString('saveastemplate', 'local_reuseunit');
+    const duplicateText = await getString('duplicatesection', 'local_reuseunit');
+    const exportText = await getString('exportasmbz', 'local_reuseunit');
 
     // Find all section action menus.
     document.querySelectorAll('.course-section-header .section-actions').forEach((actions, index) => {
@@ -84,10 +86,30 @@ const addImportButtons = async () => {
         saveBtn.dataset.action = 'reuseunit-save-template';
         saveBtn.dataset.sectionid = sectionid;
 
+        // Add duplicate button.
+        const duplicateBtn = document.createElement('a');
+        duplicateBtn.href = '#';
+        duplicateBtn.className = 'reuseunit-duplicate-btn btn btn-sm btn-outline-info ml-1';
+        duplicateBtn.innerHTML = `<i class="fa fa-copy"></i>`;
+        duplicateBtn.title = duplicateText;
+        duplicateBtn.dataset.action = 'reuseunit-duplicate';
+        duplicateBtn.dataset.sectionid = sectionid;
+
+        // Add export button.
+        const exportBtn = document.createElement('a');
+        exportBtn.href = '#';
+        exportBtn.className = 'reuseunit-export-btn btn btn-sm btn-outline-success ml-1';
+        exportBtn.innerHTML = `<i class="fa fa-file-archive-o"></i>`;
+        exportBtn.title = exportText;
+        exportBtn.dataset.action = 'reuseunit-export';
+        exportBtn.dataset.sectionid = sectionid;
+
         const container = document.createElement('div');
         container.className = 'reuseunit-section-buttons d-inline-flex ml-2';
         container.appendChild(importBtn);
         container.appendChild(saveBtn);
+        container.appendChild(duplicateBtn);
+        container.appendChild(exportBtn);
 
         actions.appendChild(container);
     });
@@ -108,6 +130,18 @@ const bindEvents = () => {
         if (saveBtn) {
             e.preventDefault();
             await openSaveTemplateModal(saveBtn.dataset.sectionid);
+        }
+
+        const duplicateBtn = e.target.closest('[data-action="reuseunit-duplicate"]');
+        if (duplicateBtn) {
+            e.preventDefault();
+            await duplicateSection(duplicateBtn.dataset.sectionid);
+        }
+
+        const exportBtn = e.target.closest('[data-action="reuseunit-export"]');
+        if (exportBtn) {
+            e.preventDefault();
+            await exportSection(exportBtn.dataset.sectionid);
         }
     });
 };
@@ -215,6 +249,145 @@ const saveTemplate = async (modal, sectionid) => {
                 type: 'success'
             });
         }
+    } catch (error) {
+        Notification.exception(error);
+    }
+};
+
+/**
+ * Duplicate a section within the same course.
+ *
+ * @param {number} sectionid - Section ID
+ */
+const duplicateSection = async (sectionid) => {
+    try {
+        const confirmTitle = await getString('duplicatesection', 'local_reuseunit');
+        const confirmMsg = await getString('confirmimportmessage', 'local_reuseunit');
+
+        const modal = await ModalFactory.create({
+            type: ModalFactory.types.SAVE_CANCEL,
+            title: confirmTitle,
+            body: `<p>${confirmMsg}</p>
+                <div class="form-group">
+                    <label for="duplicate-position">${await getString('duplicateposition', 'local_reuseunit')}</label>
+                    <select id="duplicate-position" class="form-control">
+                        <option value="after_source">${await getString('position_after_source', 'local_reuseunit')}</option>
+                        <option value="end">${await getString('position_end', 'local_reuseunit')}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="duplicate-name">${await getString('newsectionname', 'local_reuseunit')}</label>
+                    <input type="text" id="duplicate-name" class="form-control" placeholder="${await getString('keepsectionname', 'local_reuseunit')}">
+                </div>`,
+        });
+
+        modal.setSaveButtonText(await getString('duplicatesection', 'local_reuseunit'));
+
+        modal.getRoot().on(ModalEvents.save, async (e) => {
+            e.preventDefault();
+            modal.hide();
+
+            const position = document.getElementById('duplicate-position')?.value || 'after_source';
+            const newname = document.getElementById('duplicate-name')?.value || '';
+
+            // Show loading notification.
+            const loadingMsg = await getString('duplicating', 'local_reuseunit');
+            Notification.addNotification({
+                message: loadingMsg,
+                type: 'info'
+            });
+
+            try {
+                const result = await Ajax.call([{
+                    methodname: 'local_reuseunit_duplicate_section',
+                    args: {
+                        courseid,
+                        sectionid: parseInt(sectionid),
+                        position,
+                        newname
+                    }
+                }])[0];
+
+                if (result.success) {
+                    Notification.addNotification({
+                        message: result.message,
+                        type: 'success'
+                    });
+                    // Reload page to show new section.
+                    window.location.reload();
+                }
+            } catch (err) {
+                Notification.exception(err);
+            }
+
+            modal.destroy();
+        });
+
+        modal.show();
+    } catch (error) {
+        Notification.exception(error);
+    }
+};
+
+/**
+ * Export a section as .mbz file.
+ *
+ * @param {number} sectionid - Section ID
+ */
+const exportSection = async (sectionid) => {
+    try {
+        const confirmTitle = await getString('exportsection', 'local_reuseunit');
+
+        const modal = await ModalFactory.create({
+            type: ModalFactory.types.SAVE_CANCEL,
+            title: confirmTitle,
+            body: `<div class="form-group">
+                    <label for="export-filename">${await getString('exportfilename', 'local_reuseunit')}</label>
+                    <input type="text" id="export-filename" class="form-control" placeholder="${await getString('exportfilename_help', 'local_reuseunit')}">
+                </div>`,
+        });
+
+        modal.setSaveButtonText(await getString('exportasmbz', 'local_reuseunit'));
+
+        modal.getRoot().on(ModalEvents.save, async (e) => {
+            e.preventDefault();
+            modal.hide();
+
+            const filename = document.getElementById('export-filename')?.value || '';
+
+            // Show loading notification.
+            const loadingMsg = await getString('exporting', 'local_reuseunit');
+            Notification.addNotification({
+                message: loadingMsg,
+                type: 'info'
+            });
+
+            try {
+                const result = await Ajax.call([{
+                    methodname: 'local_reuseunit_export_section',
+                    args: {
+                        courseid,
+                        sectionid: parseInt(sectionid),
+                        filename
+                    }
+                }])[0];
+
+                if (result.success) {
+                    Notification.addNotification({
+                        message: result.message,
+                        type: 'success'
+                    });
+                    // Trigger download.
+                    window.location.href = result.downloadurl;
+                }
+            } catch (err) {
+                Notification.exception(err);
+            }
+
+            modal.destroy();
+        });
+
+        modal.show();
     } catch (error) {
         Notification.exception(error);
     }

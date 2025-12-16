@@ -190,3 +190,33 @@ $string['templateusage'] = 'Used {$a} times';
 $string['updatetemplate'] = 'Update template';
 $string['deletetemplate'] = 'Delete template';
 $string['confirmdeletetemplate'] = 'Are you sure you want to delete this template?';
+
+// Duplicate section.
+$string['duplicatesection'] = 'Duplicate section';
+$string['duplicating'] = 'Duplicating...';
+$string['duplicatesuccessful'] = 'Section duplicated successfully';
+$string['duplicateposition'] = 'Placement';
+$string['position_after_source'] = 'After original section';
+$string['copy'] = 'copy';
+
+// Export section.
+$string['exportsection'] = 'Export section';
+$string['exportasmbz'] = 'Export as .mbz';
+$string['exporting'] = 'Exporting...';
+$string['exportsuccessful'] = 'Export successful';
+$string['downloadbackup'] = 'Download backup';
+$string['exportfilename'] = 'Export filename';
+$string['exportfilename_help'] = 'Leave empty to auto-generate filename';
+
+// Search sections.
+$string['searchsections'] = 'Search sections';
+$string['searchbyactivity'] = 'Search by activity type';
+$string['activitytypes'] = 'Activity types';
+$string['filterbyactivity'] = 'Filter by activity type';
+$string['selectactivitytypes'] = 'Select activity types...';
+$string['allactivities'] = 'All activities';
+$string['sectionsmatching'] = '{$a} sections found';
+$string['nosectionsfound'] = 'No sections match your criteria';
+$string['searchplaceholder'] = 'Search by section name...';
+$string['advancedsearch'] = 'Advanced search';
+$string['clearfilters'] = 'Clear filters';

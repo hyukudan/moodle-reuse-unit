@@ -43,6 +43,8 @@ class ImportWizard {
         this.sourceSectionid = null;
         this.currentStep = 1;
         this.searchTimeout = null;
+        this.advancedSearchOpen = false;
+        this.selectedActivityTypes = [];
 
         this.init();
     }
@@ -97,6 +99,29 @@ class ImportWizard {
                 document.querySelectorAll('.reuseunit-search-results').forEach(el => el.classList.add('d-none'));
             }
         });
+
+        // Advanced search toggle.
+        const advancedToggle = document.getElementById('toggle-advanced-search');
+        if (advancedToggle) {
+            advancedToggle.addEventListener('click', () => this.toggleAdvancedSearch());
+        }
+
+        // Section search input.
+        const sectionSearch = document.getElementById('section-search-input');
+        if (sectionSearch) {
+            sectionSearch.addEventListener('input', () => this.handleSectionSearch());
+        }
+
+        // Activity type checkboxes.
+        document.querySelectorAll('.activity-type-filter').forEach(cb => {
+            cb.addEventListener('change', () => this.handleActivityTypeFilter());
+        });
+
+        // Clear filters button.
+        const clearFilters = document.getElementById('clear-filters');
+        if (clearFilters) {
+            clearFilters.addEventListener('click', () => this.clearSearchFilters());
+        }
     }
 
     /**
@@ -434,6 +459,165 @@ class ImportWizard {
         document.getElementById('btn-step1-next').disabled = true;
 
         this.goToStep(1);
+    }
+
+    /**
+     * Toggle advanced search panel.
+     */
+    toggleAdvancedSearch() {
+        this.advancedSearchOpen = !this.advancedSearchOpen;
+        const panel = document.getElementById('advanced-search-panel');
+        const toggle = document.getElementById('toggle-advanced-search');
+
+        if (panel) {
+            panel.classList.toggle('d-none', !this.advancedSearchOpen);
+        }
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', this.advancedSearchOpen);
+            const icon = toggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-down', !this.advancedSearchOpen);
+                icon.classList.toggle('fa-chevron-up', this.advancedSearchOpen);
+            }
+        }
+    }
+
+    /**
+     * Handle section search across all courses.
+     */
+    async handleSectionSearch() {
+        const query = document.getElementById('section-search-input')?.value.trim() || '';
+
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            this.searchSections(query);
+        }, 300);
+    }
+
+    /**
+     * Handle activity type filter change.
+     */
+    handleActivityTypeFilter() {
+        this.selectedActivityTypes = [];
+        document.querySelectorAll('.activity-type-filter:checked').forEach(cb => {
+            this.selectedActivityTypes.push(cb.value);
+        });
+
+        // Re-search with new filters.
+        const query = document.getElementById('section-search-input')?.value.trim() || '';
+        this.searchSections(query);
+    }
+
+    /**
+     * Search for sections.
+     *
+     * @param {string} query - Search query
+     */
+    async searchSections(query) {
+        const resultsContainer = document.getElementById('section-search-results');
+        if (!resultsContainer) {
+            return;
+        }
+
+        // Show loading.
+        resultsContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>';
+        resultsContainer.classList.remove('d-none');
+
+        try {
+            const activitytypes = this.selectedActivityTypes.join(',');
+            const courseid = this.sourceCourseid || 0;
+
+            const sections = await Ajax.call([{
+                methodname: 'local_reuseunit_search_sections',
+                args: {
+                    query,
+                    activitytypes,
+                    courseid,
+                    limit: 20
+                }
+            }])[0];
+
+            if (sections.length === 0) {
+                const noResults = await getString('nosectionsfound', 'local_reuseunit');
+                resultsContainer.innerHTML = `<div class="alert alert-info">${noResults}</div>`;
+                return;
+            }
+
+            // Show count.
+            const countText = await getString('sectionsmatching', 'local_reuseunit', sections.length);
+            let html = `<div class="mb-2 text-muted small">${countText}</div>`;
+
+            // Render results.
+            for (const section of sections) {
+                const activityList = section.activitytypes.map(type => `
+                    <span class="badge badge-secondary badge-pill mr-1">${type}</span>
+                `).join('');
+
+                html += `
+                    <div class="reuseunit-section-result p-2 border-bottom" data-courseid="${section.courseid}" data-sectionid="${section.sectionid}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="font-weight-bold">${section.sectionname}</div>
+                                <small class="text-muted">${section.coursename} (${section.courseshortname})</small>
+                            </div>
+                            <div class="text-right">
+                                <small>${section.activities} activities, ${section.resources} resources</small>
+                            </div>
+                        </div>
+                        <div class="mt-1">${activityList}</div>
+                    </div>
+                `;
+            }
+
+            resultsContainer.innerHTML = html;
+
+            // Bind click events.
+            resultsContainer.querySelectorAll('.reuseunit-section-result').forEach(el => {
+                el.addEventListener('click', () => this.selectSearchResult(el));
+            });
+
+        } catch (error) {
+            Notification.exception(error);
+        }
+    }
+
+    /**
+     * Select a search result.
+     *
+     * @param {HTMLElement} element - Clicked element
+     */
+    async selectSearchResult(element) {
+        const courseid = element.dataset.courseid;
+        const sectionid = element.dataset.sectionid;
+
+        this.sourceCourseid = parseInt(courseid);
+        this.sourceSectionid = parseInt(sectionid);
+
+        // Update UI to show selection.
+        document.querySelectorAll('.reuseunit-section-result').forEach(el => {
+            el.classList.remove('bg-primary', 'text-white');
+        });
+        element.classList.add('bg-primary', 'text-white');
+
+        // Enable next button.
+        document.getElementById('btn-step1-next').disabled = false;
+    }
+
+    /**
+     * Clear all search filters.
+     */
+    clearSearchFilters() {
+        document.getElementById('section-search-input').value = '';
+        document.querySelectorAll('.activity-type-filter').forEach(cb => {
+            cb.checked = false;
+        });
+        this.selectedActivityTypes = [];
+
+        const resultsContainer = document.getElementById('section-search-results');
+        if (resultsContainer) {
+            resultsContainer.innerHTML = '';
+            resultsContainer.classList.add('d-none');
+        }
     }
 }
 
