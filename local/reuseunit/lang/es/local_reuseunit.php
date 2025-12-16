@@ -220,3 +220,20 @@ $string['nosectionsfound'] = 'No se encontraron secciones que coincidan';
 $string['searchplaceholder'] = 'Buscar por nombre de sección...';
 $string['advancedsearch'] = 'Búsqueda avanzada';
 $string['clearfilters'] = 'Limpiar filtros';
+
+// Batch import.
+$string['batchimport'] = 'Importación masiva';
+$string['batchimportdesc'] = 'Importar múltiples secciones a la vez';
+$string['selectmultiple'] = 'Seleccionar múltiples secciones';
+$string['selectedsections'] = 'Secciones seleccionadas';
+$string['nosectionsselected'] = 'Sin secciones seleccionadas';
+$string['batchimporting'] = 'Importando secciones...';
+$string['batchimportcomplete'] = '{$a->success} de {$a->total} secciones importadas correctamente';
+$string['batchimportfailed'] = 'Algunas importaciones fallaron. Revisa los resultados individuales.';
+$string['addtoqueue'] = 'Añadir a la cola';
+$string['removefromqueue'] = 'Quitar de la cola';
+$string['clearqueue'] = 'Limpiar todo';
+$string['importqueue'] = 'Cola de importación';
+$string['queueitems'] = '{$a} elementos en cola';
+$string['error_toomanyimports'] = 'Máximo {$a} secciones pueden importarse a la vez';
+$string['processingitem'] = 'Procesando {$a->current} de {$a->total}...';

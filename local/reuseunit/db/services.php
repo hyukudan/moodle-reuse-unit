@@ -130,6 +130,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    'local_reuseunit_batch_import' => [
+        'classname' => 'local_reuseunit\external\batch_import',
+        'description' => 'Import multiple sections in batch',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -148,6 +156,7 @@ $services = [
             'local_reuseunit_duplicate_section',
             'local_reuseunit_export_section',
             'local_reuseunit_search_sections',
+            'local_reuseunit_batch_import',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

@@ -45,6 +45,8 @@ class ImportWizard {
         this.searchTimeout = null;
         this.advancedSearchOpen = false;
         this.selectedActivityTypes = [];
+        this.batchMode = false;
+        this.importQueue = [];
 
         this.init();
     }
@@ -122,6 +124,21 @@ class ImportWizard {
         if (clearFilters) {
             clearFilters.addEventListener('click', () => this.clearSearchFilters());
         }
+
+        // Batch mode toggle.
+        const batchToggle = document.getElementById('toggle-batch-mode');
+        if (batchToggle) {
+            batchToggle.addEventListener('change', () => this.toggleBatchMode());
+        }
+
+        // Clear queue button.
+        const clearQueue = document.getElementById('clear-queue');
+        if (clearQueue) {
+            clearQueue.addEventListener('click', () => this.clearImportQueue());
+        }
+
+        // Batch import button.
+        document.getElementById('btn-batch-import')?.addEventListener('click', () => this.performBatchImport());
     }
 
     /**
@@ -587,6 +604,12 @@ class ImportWizard {
      * @param {HTMLElement} element - Clicked element
      */
     async selectSearchResult(element) {
+        // In batch mode, add to queue instead.
+        if (this.batchMode) {
+            await this.handleBatchSelection(element);
+            return;
+        }
+
         const courseid = element.dataset.courseid;
         const sectionid = element.dataset.sectionid;
 
@@ -617,6 +640,214 @@ class ImportWizard {
         if (resultsContainer) {
             resultsContainer.innerHTML = '';
             resultsContainer.classList.add('d-none');
+        }
+    }
+
+    /**
+     * Toggle batch import mode.
+     */
+    toggleBatchMode() {
+        this.batchMode = document.getElementById('toggle-batch-mode')?.checked || false;
+
+        const queuePanel = document.getElementById('import-queue-panel');
+        const singleButtons = document.getElementById('single-import-buttons');
+        const batchButtons = document.getElementById('batch-import-buttons');
+
+        if (queuePanel) {
+            queuePanel.classList.toggle('d-none', !this.batchMode);
+        }
+        if (singleButtons) {
+            singleButtons.classList.toggle('d-none', this.batchMode);
+        }
+        if (batchButtons) {
+            batchButtons.classList.toggle('d-none', !this.batchMode);
+        }
+
+        // Clear queue when switching modes.
+        if (!this.batchMode) {
+            this.clearImportQueue();
+        }
+    }
+
+    /**
+     * Add a section to the import queue.
+     *
+     * @param {Object} sectionData - Section data
+     */
+    async addToQueue(sectionData) {
+        // Check if already in queue.
+        const exists = this.importQueue.some(
+            item => item.sourcecourseid === sectionData.sourcecourseid &&
+                    item.sourcesectionid === sectionData.sourcesectionid
+        );
+
+        if (exists) {
+            return;
+        }
+
+        this.importQueue.push(sectionData);
+        await this.updateQueueDisplay();
+    }
+
+    /**
+     * Remove an item from the import queue.
+     *
+     * @param {number} index - Queue index
+     */
+    async removeFromQueue(index) {
+        this.importQueue.splice(index, 1);
+        await this.updateQueueDisplay();
+    }
+
+    /**
+     * Clear the import queue.
+     */
+    async clearImportQueue() {
+        this.importQueue = [];
+        await this.updateQueueDisplay();
+    }
+
+    /**
+     * Update the queue display.
+     */
+    async updateQueueDisplay() {
+        const queueList = document.getElementById('queue-list');
+        const queueCount = document.getElementById('queue-count');
+        const batchImportBtn = document.getElementById('btn-batch-import');
+
+        if (!queueList) {
+            return;
+        }
+
+        if (this.importQueue.length === 0) {
+            const noItems = await getString('nosectionsselected', 'local_reuseunit');
+            queueList.innerHTML = `<div class="text-muted text-center py-3">${noItems}</div>`;
+            if (batchImportBtn) {
+                batchImportBtn.disabled = true;
+            }
+        } else {
+            let html = '';
+            this.importQueue.forEach((item, index) => {
+                html += `
+                    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                        <div>
+                            <strong>${item.sectionname}</strong>
+                            <small class="text-muted d-block">${item.coursename}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger queue-remove" data-index="${index}">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            queueList.innerHTML = html;
+
+            // Bind remove buttons.
+            queueList.querySelectorAll('.queue-remove').forEach(btn => {
+                btn.addEventListener('click', () => this.removeFromQueue(parseInt(btn.dataset.index)));
+            });
+
+            if (batchImportBtn) {
+                batchImportBtn.disabled = false;
+            }
+        }
+
+        if (queueCount) {
+            const countText = await getString('queueitems', 'local_reuseunit', this.importQueue.length);
+            queueCount.textContent = countText;
+        }
+    }
+
+    /**
+     * Handle selection in batch mode.
+     *
+     * @param {HTMLElement} element - Selected element
+     */
+    async handleBatchSelection(element) {
+        const courseid = parseInt(element.dataset.courseid);
+        const sectionid = parseInt(element.dataset.sectionid);
+        const sectionname = element.querySelector('.font-weight-bold')?.textContent || '';
+        const coursename = element.querySelector('.text-muted')?.textContent || '';
+
+        await this.addToQueue({
+            sourcecourseid: courseid,
+            sourcesectionid: sectionid,
+            sectionname,
+            coursename,
+            newsectionname: '',
+        });
+
+        // Visual feedback.
+        element.classList.add('bg-success', 'text-white');
+        setTimeout(() => {
+            element.classList.remove('bg-success', 'text-white');
+        }, 500);
+    }
+
+    /**
+     * Perform batch import.
+     */
+    async performBatchImport() {
+        if (this.importQueue.length === 0) {
+            return;
+        }
+
+        // Show progress.
+        this.goToStep('progress');
+
+        const options = {
+            resetdates: document.getElementById('option-resetdates')?.checked ?? true,
+            includerestrictions: document.getElementById('option-restrictions')?.checked ?? false,
+            includegradebook: document.getElementById('option-gradebook')?.checked ?? false,
+        };
+
+        const position = document.querySelector('input[name="position"]:checked')?.value ?? 'end';
+
+        // Prepare sections array.
+        const sections = this.importQueue.map(item => ({
+            sourcecourseid: item.sourcecourseid,
+            sourcesectionid: item.sourcesectionid,
+            newsectionname: item.newsectionname || '',
+        }));
+
+        try {
+            const progressMsg = document.getElementById('progress-message');
+
+            // Update progress message.
+            if (progressMsg) {
+                const importing = await getString('batchimporting', 'local_reuseunit');
+                progressMsg.textContent = importing;
+            }
+
+            const result = await Ajax.call([{
+                methodname: 'local_reuseunit_batch_import',
+                args: {
+                    destcourseid: this.destCourseid,
+                    sections,
+                    position,
+                    ...options
+                }
+            }])[0];
+
+            // Show results.
+            document.getElementById('btn-view-section').href = result.courseurl;
+            document.getElementById('result-stats').innerHTML = `
+                ${result.totalimported}/${sections.length} sections imported<br>
+                ${result.totalactivities} activities, ${result.totalresources} resources
+            `;
+
+            const resultHeader = document.getElementById('result-header');
+            if (!result.success && resultHeader) {
+                resultHeader.classList.remove('bg-success');
+                resultHeader.classList.add('bg-warning');
+            }
+
+            this.goToStep('result');
+            this.clearImportQueue();
+
+        } catch (error) {
+            Notification.exception(error);
+            this.goToStep(3);
         }
     }
 }

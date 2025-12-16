@@ -220,3 +220,20 @@ $string['nosectionsfound'] = 'No sections match your criteria';
 $string['searchplaceholder'] = 'Search by section name...';
 $string['advancedsearch'] = 'Advanced search';
 $string['clearfilters'] = 'Clear filters';
+
+// Batch import.
+$string['batchimport'] = 'Batch import';
+$string['batchimportdesc'] = 'Import multiple sections at once';
+$string['selectmultiple'] = 'Select multiple sections';
+$string['selectedsections'] = 'Selected sections';
+$string['nosectionsselected'] = 'No sections selected';
+$string['batchimporting'] = 'Importing sections...';
+$string['batchimportcomplete'] = '{$a->success} of {$a->total} sections imported successfully';
+$string['batchimportfailed'] = 'Some imports failed. Check individual results.';
+$string['addtoqueue'] = 'Add to import queue';
+$string['removefromqueue'] = 'Remove from queue';
+$string['clearqueue'] = 'Clear all';
+$string['importqueue'] = 'Import queue';
+$string['queueitems'] = '{$a} items in queue';
+$string['error_toomanyimports'] = 'Maximum {$a} sections can be imported at once';
+$string['processingitem'] = 'Processing {$a->current} of {$a->total}...';

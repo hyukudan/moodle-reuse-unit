@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-12-16
+
+### Added
+- **Batch Import**: Import multiple sections at once
+- Import queue panel with add/remove functionality
+- Batch mode toggle in advanced search
+- Progress tracking for batch operations
+- Maximum sections limit (configurable)
+
+### Changed
+- Import wizard now supports both single and batch modes
+- Section search results can be added to queue in batch mode
+
 ## [0.2.0] - 2024-12-16
 
 ### Added
