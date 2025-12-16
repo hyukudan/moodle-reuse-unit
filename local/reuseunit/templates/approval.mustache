@@ -1,0 +1,111 @@
+{{!
+    Template approval page for local_reuseunit.
+
+    @package    local_reuseunit
+    @copyright  2024 hyukudan
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="reuseunit-approval">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>{{#str}}pendingtemplates, local_reuseunit{{/str}} <span class="badge badge-warning">{{count}}</span></h4>
+        <button type="button" class="btn btn-outline-secondary" id="refreshPendingBtn">
+            <i class="fa fa-refresh"></i> {{#str}}refresh, local_reuseunit{{/str}}
+        </button>
+    </div>
+
+    {{#hastemplates}}
+    <div class="table-responsive">
+        <table class="table table-striped" id="pendingTemplatesTable">
+            <thead class="thead-light">
+                <tr>
+                    <th>{{#str}}templatename, local_reuseunit{{/str}}</th>
+                    <th>{{#str}}submittedby, local_reuseunit{{/str}}</th>
+                    <th>{{#str}}source, local_reuseunit{{/str}}</th>
+                    <th>{{#str}}content, local_reuseunit{{/str}}</th>
+                    <th>{{#str}}submittedon, local_reuseunit{{/str}}</th>
+                    <th>{{#str}}actions, local_reuseunit{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#templates}}
+                <tr data-templateid="{{id}}">
+                    <td>
+                        <strong>{{name}}</strong>
+                        {{#description}}
+                        <br><small class="text-muted">{{description}}</small>
+                        {{/description}}
+                        {{#tags}}
+                        <br>
+                        <small>
+                            {{#tags}}
+                            <span class="badge badge-light">{{.}}</span>
+                            {{/tags}}
+                        </small>
+                        {{/tags}}
+                    </td>
+                    <td>
+                        {{submittername}}
+                        <br><small class="text-muted">{{submitteremail}}</small>
+                    </td>
+                    <td>
+                        {{coursename}}
+                        <br><small class="text-muted">{{sectionname}}</small>
+                    </td>
+                    <td>
+                        {{activitiescount}} {{#str}}activities, local_reuseunit{{/str}}
+                        <br>{{resourcescount}} {{#str}}resources, local_reuseunit{{/str}}
+                    </td>
+                    <td>{{submittedatformatted}}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-success approve-btn" data-templateid="{{id}}" title="{{#str}}approve, local_reuseunit{{/str}}">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger reject-btn" data-templateid="{{id}}" title="{{#str}}reject, local_reuseunit{{/str}}">
+                                <i class="fa fa-times"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-info preview-btn" data-templateid="{{id}}" title="{{#str}}preview, local_reuseunit{{/str}}">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {{/templates}}
+            </tbody>
+        </table>
+    </div>
+    {{/hastemplates}}
+
+    {{^hastemplates}}
+    <div class="alert alert-info text-center">
+        <i class="fa fa-check-circle fa-2x mb-2"></i>
+        <p>{{#str}}nopendingapprovals, local_reuseunit{{/str}}</p>
+    </div>
+    {{/hastemplates}}
+</div>
+
+{{! Rejection reason modal }}
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel">{{#str}}rejecttemplate, local_reuseunit{{/str}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{#str}}close, local_reuseunit{{/str}}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectTemplateId">
+                <div class="form-group">
+                    <label for="rejectionReason">{{#str}}rejectionreason, local_reuseunit{{/str}}</label>
+                    <textarea class="form-control" id="rejectionReason" rows="3" placeholder="{{#str}}rejectionreason_placeholder, local_reuseunit{{/str}}"></textarea>
+                    <small class="form-text text-muted">{{#str}}rejectionreason_help, local_reuseunit{{/str}}</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}}cancel, local_reuseunit{{/str}}</button>
+                <button type="button" class="btn btn-danger" id="confirmRejectBtn">{{#str}}reject, local_reuseunit{{/str}}</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+{{!
+    @template local_reuseunit/template_item
+
+    Template list item.
+
+    Context variables:
+    * id - Template ID
+    * name - Template name
+    * description - Template description
+    * activities - Number of activities
+    * resources - Number of resources
+    * creatorname - Creator name
+    * timecreatedformatted - Formatted creation date
+    * sharelevel - Share level (personal, category, global)
+    * tags - Array of tags
+    * candelete - Whether user can delete
+}}
+<div class="reuseunit-template-item card mb-2" data-templateid="{{id}}">
+    <div class="card-body py-2 px-3">
+        <div class="d-flex align-items-start">
+            <div class="custom-control custom-radio mr-3 mt-1">
+                <input type="radio" class="custom-control-input template-radio" name="source-template" id="template-{{id}}" value="{{id}}">
+                <label class="custom-control-label" for="template-{{id}}"></label>
+            </div>
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center">
+                    <strong>{{name}}</strong>
+                    {{#sharelevel}}
+                    <span class="badge badge-{{sharelevelclass}} ml-2">
+                        {{#sharelevelicon}}{{#pix}}{{.}}, core{{/pix}}{{/sharelevelicon}}
+                        {{sharelevellabel}}
+                    </span>
+                    {{/sharelevel}}
+                </div>
+                {{#description}}
+                <p class="text-muted small mb-1">{{description}}</p>
+                {{/description}}
+                <div class="text-muted small">
+                    <span class="mr-3">{{activities}} {{#str}}activities, local_reuseunit{{/str}}, {{resources}} {{#str}}resources, local_reuseunit{{/str}}</span>
+                    <span class="mr-3">{{#pix}}i/user, core{{/pix}} {{creatorname}}</span>
+                    <span>{{#pix}}i/calendar, core{{/pix}} {{timecreatedformatted}}</span>
+                </div>
+                {{#tags.0}}
+                <div class="template-tags mt-1">
+                    {{#tags}}<span class="badge badge-info mr-1">{{.}}</span>{{/tags}}
+                </div>
+                {{/tags.0}}
+            </div>
+            {{#candelete}}
+            <div class="template-actions ml-2">
+                <button type="button" class="btn btn-sm btn-link text-danger delete-template" data-templateid="{{id}}" title="{{#str}}delete, core{{/str}}">
+                    {{#pix}}t/delete, core{{/pix}}
+                </button>
+            </div>
+            {{/candelete}}
+        </div>
+    </div>
+</div>

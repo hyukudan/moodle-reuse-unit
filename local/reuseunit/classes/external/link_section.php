@@ -1,0 +1,257 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace local_reuseunit\external;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/externallib.php');
+
+use external_api;
+use external_function_parameters;
+use external_single_structure;
+use external_value;
+use context_course;
+use local_reuseunit\section_helper;
+
+/**
+ * External function to create a link between a section and a template.
+ *
+ * @package    local_reuseunit
+ * @copyright  2025 hyukudan
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class link_section extends external_api {
+
+    /**
+     * Returns description of method parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function execute_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'courseid' => new external_value(PARAM_INT, 'Course ID'),
+            'sectionid' => new external_value(PARAM_INT, 'Section ID'),
+            'templateid' => new external_value(PARAM_INT, 'Template ID'),
+            'autosync' => new external_value(PARAM_BOOL, 'Enable auto-sync', VALUE_DEFAULT, false),
+            'importedcmids' => new external_value(PARAM_TEXT, 'JSON array of imported cmids', VALUE_DEFAULT, ''),
+            'partialimport' => new external_value(PARAM_BOOL, 'Whether this was a partial import', VALUE_DEFAULT, false),
+        ]);
+    }
+
+    /**
+     * Create a link between a section and a template.
+     *
+     * @param int $courseid Course ID
+     * @param int $sectionid Section ID
+     * @param int $templateid Template ID
+     * @param bool $autosync Enable auto-sync
+     * @param string $importedcmids JSON array of imported cmids
+     * @param bool $partialimport Whether this was a partial import
+     * @return array Result
+     */
+    public static function execute(
+        int $courseid,
+        int $sectionid,
+        int $templateid,
+        bool $autosync = false,
+        string $importedcmids = '',
+        bool $partialimport = false
+    ): array {
+        global $DB, $USER;
+
+        // Validate parameters.
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'courseid' => $courseid,
+            'sectionid' => $sectionid,
+            'templateid' => $templateid,
+            'autosync' => $autosync,
+            'importedcmids' => $importedcmids,
+            'partialimport' => $partialimport,
+        ]);
+
+        // Check course access.
+        $context = context_course::instance($params['courseid']);
+        self::validate_context($context);
+        require_capability('local/reuseunit:import', $context);
+
+        // Verify section exists.
+        $section = $DB->get_record('course_sections', [
+            'id' => $params['sectionid'],
+            'course' => $params['courseid'],
+        ], '*', MUST_EXIST);
+
+        // Verify template exists.
+        $template = $DB->get_record('local_reuseunit_templates', ['id' => $params['templateid']], '*', MUST_EXIST);
+
+        // Check if link already exists.
+        $existing = $DB->get_record('local_reuseunit_links', [
+            'courseid' => $params['courseid'],
+            'sectionid' => $params['sectionid'],
+        ]);
+
+        // Parse imported cmids for contenthash calculation with safe JSON decoding.
+        $selectedcmids = [];
+        if (!empty($params['importedcmids'])) {
+            $selectedcmids = section_helper::safe_json_decode($params['importedcmids'], []);
+        }
+
+        // Calculate contenthash of source section.
+        $contenthash = section_helper::calculate_contenthash(
+            $template->source_courseid,
+            $template->source_sectionid,
+            $selectedcmids
+        );
+
+        if ($existing) {
+            // Update existing link.
+            $existing->templateid = $params['templateid'];
+            $existing->autosync = $params['autosync'] ? 1 : 0;
+            $existing->template_version = $template->current_version ?? 1;
+            $existing->timemodified = time();
+            $existing->contenthash = $contenthash;
+            $existing->update_available = 0;
+            $existing->last_checked = time();
+            // Update partial import data if provided.
+            if (!empty($params['importedcmids'])) {
+                $existing->imported_cmids = $params['importedcmids'];
+                $existing->partial_import = $params['partialimport'] ? 1 : 0;
+            }
+            $DB->update_record('local_reuseunit_links', $existing);
+            $linkid = $existing->id;
+
+            // Update module mappings.
+            self::save_initial_mappings($linkid, $template, $section, $selectedcmids);
+        } else {
+            // Create new link.
+            $link = new \stdClass();
+            $link->courseid = $params['courseid'];
+            $link->sectionid = $params['sectionid'];
+            $link->templateid = $params['templateid'];
+            $link->userid = $USER->id;
+            $link->autosync = $params['autosync'] ? 1 : 0;
+            $link->template_version = $template->current_version ?? 1;
+            $link->last_synced = time();
+            $link->timecreated = time();
+            $link->timemodified = time();
+            // Store partial import data.
+            $link->imported_cmids = $params['importedcmids'] ?: null;
+            $link->partial_import = $params['partialimport'] ? 1 : 0;
+            // Store contenthash for change detection.
+            $link->contenthash = $contenthash;
+            $link->update_available = 0;
+            $link->last_checked = time();
+            $linkid = $DB->insert_record('local_reuseunit_links', $link);
+
+            // Save initial module mappings.
+            self::save_initial_mappings($linkid, $template, $section, $selectedcmids);
+        }
+
+        return [
+            'success' => true,
+            'linkid' => $linkid,
+            'message' => get_string('sectionlinked', 'local_reuseunit'),
+        ];
+    }
+
+    /**
+     * Save initial module mappings by matching source and dest modules by name.
+     *
+     * @param int $linkid Link ID
+     * @param \stdClass $template Template record
+     * @param \stdClass $destsection Destination section record
+     * @param array $selectedcmids Source cmids that were imported (empty for full import)
+     * @return void
+     */
+    private static function save_initial_mappings(
+        int $linkid,
+        \stdClass $template,
+        \stdClass $destsection,
+        array $selectedcmids = []
+    ): void {
+        global $DB;
+
+        // Get source section modules.
+        $sourcemodinfo = get_fast_modinfo($template->source_courseid);
+        $sourcesection = $DB->get_record('course_sections', ['id' => $template->source_sectionid]);
+        if (!$sourcesection) {
+            return;
+        }
+
+        $sourcemods = [];
+        if (isset($sourcemodinfo->sections[$sourcesection->section])) {
+            foreach ($sourcemodinfo->sections[$sourcesection->section] as $cmid) {
+                // Skip if partial import and not selected.
+                if (!empty($selectedcmids) && !in_array($cmid, $selectedcmids)) {
+                    continue;
+                }
+                $cm = $sourcemodinfo->cms[$cmid];
+                $key = $cm->modname . '::' . $cm->name;
+                $sourcemods[$key] = [
+                    'cmid' => $cmid,
+                    'modname' => $cm->modname,
+                    'name' => $cm->name,
+                ];
+            }
+        }
+
+        // Get destination section modules.
+        $destmodinfo = get_fast_modinfo($destsection->course);
+        $destmods = [];
+        if (isset($destmodinfo->sections[$destsection->section])) {
+            foreach ($destmodinfo->sections[$destsection->section] as $cmid) {
+                $cm = $destmodinfo->cms[$cmid];
+                $key = $cm->modname . '::' . $cm->name;
+                $destmods[$key] = [
+                    'cmid' => $cmid,
+                    'modname' => $cm->modname,
+                    'name' => $cm->name,
+                ];
+            }
+        }
+
+        // Match source to dest by name and type.
+        $mappings = [];
+        foreach ($sourcemods as $key => $srcmod) {
+            if (isset($destmods[$key])) {
+                $mappings[] = [
+                    'source_cmid' => $srcmod['cmid'],
+                    'dest_cmid' => $destmods[$key]['cmid'],
+                    'modname' => $srcmod['modname'],
+                    'name' => $srcmod['name'],
+                ];
+            }
+        }
+
+        // Save mappings.
+        if (!empty($mappings)) {
+            section_helper::save_module_mappings($linkid, $mappings);
+        }
+    }
+
+    /**
+     * Returns description of method result value.
+     *
+     * @return external_single_structure
+     */
+    public static function execute_returns(): external_single_structure {
+        return new external_single_structure([
+            'success' => new external_value(PARAM_BOOL, 'Whether linking was successful'),
+            'linkid' => new external_value(PARAM_INT, 'Link ID'),
+            'message' => new external_value(PARAM_TEXT, 'Result message'),
+        ]);
+    }
+}

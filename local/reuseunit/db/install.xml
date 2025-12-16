@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/reuseunit/db" VERSION="20241216" COMMENT="XMLDB file for local_reuseunit"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_reuseunit_history" COMMENT="History of section imports">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the import"/>
+        <FIELD NAME="source_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source course ID"/>
+        <FIELD NAME="source_sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source section ID"/>
+        <FIELD NAME="source_sectionname" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Original section name"/>
+        <FIELD NAME="dest_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Destination course ID"/>
+        <FIELD NAME="dest_sectionid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Created section ID"/>
+        <FIELD NAME="options" TYPE="text" NOTNULL="false" COMMENT="JSON encoded import options"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pending" COMMENT="Import status: pending, running, completed, failed"/>
+        <FIELD NAME="activities_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of activities imported"/>
+        <FIELD NAME="resources_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of resources imported"/>
+        <FIELD NAME="error_message" TYPE="text" NOTNULL="false" COMMENT="Error message if import failed"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Time import was started"/>
+        <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Time import was completed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="source_courseid" TYPE="foreign" FIELDS="source_courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="dest_courseid" TYPE="foreign" FIELDS="dest_courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_timecreated" UNIQUE="false" FIELDS="userid, timecreated"/>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_favorites" COMMENT="User favorite sections/templates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who favorited"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course containing the section"/>
+        <FIELD NAME="sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Favorited section ID"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Custom name for the favorite"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Time favorite was created"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_courseid_sectionid" UNIQUE="true" FIELDS="userid, courseid, sectionid"/>
+        <INDEX NAME="userid_timecreated" UNIQUE="false" FIELDS="userid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_templates" COMMENT="Shared section templates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creator user ID"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Template name"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" COMMENT="Template description"/>
+        <FIELD NAME="tags" TYPE="text" NOTNULL="false" COMMENT="Comma-separated tags"/>
+        <FIELD NAME="sharelevel" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="personal" COMMENT="Share level: personal, category, global"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID for category-level sharing"/>
+        <FIELD NAME="source_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Original source course ID"/>
+        <FIELD NAME="source_sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Original source section ID"/>
+        <FIELD NAME="activities_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of activities"/>
+        <FIELD NAME="resources_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of resources"/>
+        <FIELD NAME="fileitemid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="File item ID for backup file"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" COMMENT="Hash of backup content"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last modification time"/>
+        <FIELD NAME="usagecount" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" COMMENT="Number of times used"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="course_categories" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="sharelevel" UNIQUE="false" FIELDS="sharelevel"/>
+        <INDEX NAME="userid_sharelevel" UNIQUE="false" FIELDS="userid, sharelevel"/>
+        <INDEX NAME="categoryid_sharelevel" UNIQUE="false" FIELDS="categoryid, sharelevel"/>
+        <INDEX NAME="name" UNIQUE="false" FIELDS="name"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_versions" COMMENT="Template version history">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Template ID"/>
+        <FIELD NAME="version" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" COMMENT="Version number"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who created this version"/>
+        <FIELD NAME="changelog" TYPE="text" NOTNULL="false" COMMENT="Description of changes"/>
+        <FIELD NAME="source_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source course ID for this version"/>
+        <FIELD NAME="source_sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source section ID for this version"/>
+        <FIELD NAME="activities_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of activities"/>
+        <FIELD NAME="resources_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of resources"/>
+        <FIELD NAME="fileitemid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="File item ID for backup file"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" COMMENT="Hash of backup content"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="templateid" TYPE="foreign" FIELDS="templateid" REFTABLE="local_reuseunit_templates" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="templateid_version" UNIQUE="true" FIELDS="templateid, version"/>
+        <INDEX NAME="templateid_timecreated" UNIQUE="false" FIELDS="templateid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_reuseunit_links" COMMENT="Section to template links for synchronization">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course containing the linked section"/>
+        <FIELD NAME="sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Linked section ID"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Template ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who created the link"/>
+        <FIELD NAME="autosync" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Enable automatic sync"/>
+        <FIELD NAME="autosync_add" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" COMMENT="Auto-sync: add new modules"/>
+        <FIELD NAME="autosync_update" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" COMMENT="Auto-sync: update modified modules"/>
+        <FIELD NAME="autosync_remove" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Auto-sync: remove deleted modules"/>
+        <FIELD NAME="template_version" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="1" COMMENT="Template version when synced"/>
+        <FIELD NAME="last_synced" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Last sync timestamp"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last modification time"/>
+        <FIELD NAME="imported_cmids" TYPE="text" NOTNULL="false" COMMENT="JSON array of imported cmids from source"/>
+        <FIELD NAME="partial_import" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Whether this was a partial import"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="64" NOTNULL="false" COMMENT="SHA256 hash of source content"/>
+        <FIELD NAME="update_available" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="Flag indicating updates available"/>
+        <FIELD NAME="last_checked" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Last update check timestamp"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="sectionid" TYPE="foreign" FIELDS="sectionid" REFTABLE="course_sections" REFFIELDS="id"/>
+        <KEY NAME="templateid" TYPE="foreign" FIELDS="templateid" REFTABLE="local_reuseunit_templates" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_sectionid" UNIQUE="true" FIELDS="courseid, sectionid"/>
+        <INDEX NAME="templateid_autosync" UNIQUE="false" FIELDS="templateid, autosync"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_synced_modules" COMMENT="Tracks module mappings between source and destination for sync">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="linkid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link ID from local_reuseunit_links"/>
+        <FIELD NAME="source_cmid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course module ID in source section"/>
+        <FIELD NAME="dest_cmid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course module ID in destination section"/>
+        <FIELD NAME="modname" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="Module type name (e.g., assign, quiz)"/>
+        <FIELD NAME="source_name" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Module name at sync time"/>
+        <FIELD NAME="source_timemodified" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Source module timemodified at last sync"/>
+        <FIELD NAME="dest_timemodified" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Dest module timemodified at last sync"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When the mapping was created"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last sync time"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="linkid" TYPE="foreign" FIELDS="linkid" REFTABLE="local_reuseunit_links" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="linkid_source_cmid" UNIQUE="true" FIELDS="linkid, source_cmid"/>
+        <INDEX NAME="linkid_dest_cmid" UNIQUE="false" FIELDS="linkid, dest_cmid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_sync_history" COMMENT="History of sync operations for rollback and audit">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="linkid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Link ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the sync"/>
+        <FIELD NAME="sync_mode" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="selective" COMMENT="Sync mode: replace, merge, selective"/>
+        <FIELD NAME="added_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of modules added"/>
+        <FIELD NAME="updated_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of modules updated"/>
+        <FIELD NAME="removed_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of modules removed"/>
+        <FIELD NAME="preserved_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of local modules preserved"/>
+        <FIELD NAME="conflict_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of conflicts resolved"/>
+        <FIELD NAME="changes_data" TYPE="text" NOTNULL="false" COMMENT="JSON of detailed changes for rollback"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="completed" COMMENT="Status: completed, failed, rolled_back"/>
+        <FIELD NAME="error_message" TYPE="text" NOTNULL="false" COMMENT="Error message if failed"/>
+        <FIELD NAME="contenthash_before" TYPE="char" LENGTH="64" NOTNULL="false" COMMENT="Dest section hash before sync"/>
+        <FIELD NAME="contenthash_after" TYPE="char" LENGTH="64" NOTNULL="false" COMMENT="Dest section hash after sync"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When sync was performed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="linkid" TYPE="foreign" FIELDS="linkid" REFTABLE="local_reuseunit_links" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="linkid_timecreated" UNIQUE="false" FIELDS="linkid, timecreated"/>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_audit" COMMENT="Audit log for template approvals and significant actions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the action"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="Action type"/>
+        <FIELD NAME="targetid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="ID of target object"/>
+        <FIELD NAME="targettype" TYPE="char" LENGTH="30" NOTNULL="false" COMMENT="Type of target (template, link, etc)"/>
+        <FIELD NAME="details" TYPE="text" NOTNULL="false" COMMENT="JSON encoded action details"/>
+        <FIELD NAME="ipaddress" TYPE="char" LENGTH="45" NOTNULL="false" COMMENT="IP address of user"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When action was performed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="action" UNIQUE="false" FIELDS="action"/>
+        <INDEX NAME="targettype_targetid" UNIQUE="false" FIELDS="targettype, targetid"/>
+        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
+        <INDEX NAME="userid_timecreated" UNIQUE="false" FIELDS="userid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

@@ -1,0 +1,37 @@
+{{!
+    @template local_reuseunit/section_item
+
+    Section list item template.
+
+    Context variables:
+    * id - Section ID
+    * section - Section number
+    * name - Section name
+    * activities - Number of activities
+    * resources - Number of resources
+    * visible - Whether section is visible
+    * hascontents - Whether section has contents
+    * isfavorite - Whether section is a favorite
+}}
+<div class="reuseunit-section-item card mb-2 {{^visible}}bg-light{{/visible}}" data-sectionid="{{id}}" data-sectionnum="{{section}}">
+    <div class="card-body py-2 px-3 d-flex align-items-center">
+        <div class="custom-control custom-radio mr-3">
+            <input type="radio" class="custom-control-input section-radio" name="source-section" id="section-{{id}}" value="{{id}}">
+            <label class="custom-control-label" for="section-{{id}}"></label>
+        </div>
+        <div class="flex-grow-1">
+            <strong>{{name}}</strong>
+            {{^visible}}<span class="badge badge-secondary ml-2">{{#str}}hidden, core{{/str}}</span>{{/visible}}
+            <div class="text-muted small">
+                {{activities}} {{#str}}activities, local_reuseunit{{/str}}, {{resources}} {{#str}}resources, local_reuseunit{{/str}}
+            </div>
+        </div>
+        <div class="section-actions">
+            <button type="button" class="btn btn-sm btn-link toggle-favorite" data-courseid="{{courseid}}" data-sectionid="{{id}}"
+                    title="{{#isfavorite}}{{#str}}removefromfavorites, local_reuseunit{{/str}}{{/isfavorite}}{{^isfavorite}}{{#str}}addtofavorites, local_reuseunit{{/str}}{{/isfavorite}}">
+                {{#isfavorite}}{{#pix}}i/star, core{{/pix}}{{/isfavorite}}
+                {{^isfavorite}}{{#pix}}i/star-o, core{{/pix}}{{/isfavorite}}
+            </button>
+        </div>
+    </div>
+</div>

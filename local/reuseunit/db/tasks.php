@@ -1,0 +1,48 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Scheduled tasks for local_reuseunit.
+ *
+ * @package    local_reuseunit
+ * @copyright  2025 hyukudan
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+$tasks = [
+    [
+        'classname' => 'local_reuseunit\task\cleanup',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '0', // Run weekly on Sunday at 3:30 AM.
+        'disabled' => 0,
+    ],
+    [
+        'classname' => 'local_reuseunit\task\check_updates',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '*/6', // Run every 6 hours.
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    ],
+];
