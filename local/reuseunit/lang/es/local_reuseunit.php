@@ -415,3 +415,70 @@ $string['changesummary'] = 'Resumen de cambios';
 $string['increased'] = 'Aumentado';
 $string['decreased'] = 'Disminuido';
 $string['changed'] = 'Cambiado';
+
+// Privacy API.
+$string['privacy:metadata:templates'] = 'Información sobre plantillas creadas por usuarios.';
+$string['privacy:metadata:templates:userid'] = 'El ID del usuario que creó la plantilla.';
+$string['privacy:metadata:templates:name'] = 'El nombre de la plantilla.';
+$string['privacy:metadata:templates:description'] = 'La descripción de la plantilla.';
+$string['privacy:metadata:templates:tags'] = 'Etiquetas asociadas a la plantilla.';
+$string['privacy:metadata:templates:timecreated'] = 'Cuándo se creó la plantilla.';
+$string['privacy:metadata:templates:timemodified'] = 'Cuándo se modificó la plantilla por última vez.';
+
+$string['privacy:metadata:history'] = 'Registro de importaciones de secciones realizadas por usuarios.';
+$string['privacy:metadata:history:userid'] = 'El ID del usuario que realizó la importación.';
+$string['privacy:metadata:history:source_courseid'] = 'El ID del curso origen.';
+$string['privacy:metadata:history:source_sectionid'] = 'El ID de la sección origen.';
+$string['privacy:metadata:history:target_courseid'] = 'El ID del curso destino.';
+$string['privacy:metadata:history:target_sectionid'] = 'El ID de la sección destino.';
+$string['privacy:metadata:history:timecreated'] = 'Cuándo se realizó la importación.';
+
+$string['privacy:metadata:favorites'] = 'Información sobre plantillas favoritas del usuario.';
+$string['privacy:metadata:favorites:userid'] = 'El ID del usuario que añadió el favorito.';
+$string['privacy:metadata:favorites:templateid'] = 'El ID de la plantilla favorita.';
+$string['privacy:metadata:favorites:timecreated'] = 'Cuándo se añadió la plantilla a favoritos.';
+
+$string['privacy:metadata:scheduled'] = 'Información sobre importaciones programadas.';
+$string['privacy:metadata:scheduled:userid'] = 'El ID del usuario que programó la importación.';
+$string['privacy:metadata:scheduled:scheduled_time'] = 'Cuándo está programada la importación.';
+$string['privacy:metadata:scheduled:status'] = 'El estado de la importación programada.';
+$string['privacy:metadata:scheduled:timecreated'] = 'Cuándo se creó la importación programada.';
+
+$string['privacy:metadata:links'] = 'Información sobre secciones vinculadas para sincronización.';
+$string['privacy:metadata:links:userid'] = 'El ID del usuario que creó el vínculo.';
+$string['privacy:metadata:links:templateid'] = 'El ID de la plantilla vinculada.';
+$string['privacy:metadata:links:timecreated'] = 'Cuándo se creó el vínculo.';
+
+// Settings.
+$string['generalsettings'] = 'Configuración general';
+$string['enabled'] = 'Habilitar plugin';
+$string['enabled_desc'] = 'Habilitar o deshabilitar la funcionalidad del plugin Reutilizar Unidad.';
+$string['showincourse'] = 'Mostrar en menú del curso';
+$string['showincourse_desc'] = 'Mostrar la opción de importar unidad en el menú del curso.';
+$string['limits'] = 'Límites';
+$string['maxtemplates'] = 'Máximo de plantillas por usuario';
+$string['maxtemplates_desc'] = 'Número máximo de plantillas que un usuario puede crear.';
+$string['historyretention'] = 'Retención del historial (días)';
+$string['historyretention_desc'] = 'Número de días para mantener registros del historial de importaciones.';
+$string['templatesettings'] = 'Configuración de plantillas';
+$string['allowglobal'] = 'Permitir plantillas globales';
+$string['allowglobal_desc'] = 'Permitir a los usuarios compartir plantillas globalmente en todo el sitio.';
+$string['requireapproval'] = 'Requerir aprobación para plantillas globales';
+$string['requireapproval_desc'] = 'Requerir aprobación del administrador antes de que las plantillas estén disponibles globalmente.';
+$string['allowcategoryshare'] = 'Permitir compartir por categoría';
+$string['allowcategoryshare_desc'] = 'Permitir a los usuarios compartir plantillas dentro de su categoría de curso.';
+$string['syncsettings'] = 'Configuración de sincronización';
+$string['allowautosync'] = 'Permitir auto-sincronización';
+$string['allowautosync_desc'] = 'Permitir que las secciones se sincronicen automáticamente cuando se actualizan las plantillas.';
+$string['defaultsyncmode'] = 'Modo de sincronización por defecto';
+$string['defaultsyncmode_desc'] = 'Modo predeterminado para sincronizar secciones con plantillas.';
+$string['notificationsettings'] = 'Configuración de notificaciones';
+$string['notifyimport'] = 'Notificar al completar importación';
+$string['notifyimport_desc'] = 'Enviar una notificación cuando se complete una importación.';
+$string['notifytemplate'] = 'Notificar actualizaciones de plantillas';
+$string['notifytemplate_desc'] = 'Enviar notificaciones cuando se comparten o actualizan plantillas.';
+$string['cleanupsettings'] = 'Configuración de limpieza';
+$string['autocleanup'] = 'Limpieza automática de datos antiguos';
+$string['autocleanup_desc'] = 'Limpiar automáticamente importaciones programadas antiguas y registros del historial.';
+$string['cleanupage'] = 'Antigüedad de limpieza (días)';
+$string['cleanupage_desc'] = 'Antigüedad en días después de la cual se limpian las importaciones programadas completadas.';

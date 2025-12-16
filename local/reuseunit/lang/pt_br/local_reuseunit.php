@@ -415,3 +415,70 @@ $string['changesummary'] = 'Resumo das alterações';
 $string['increased'] = 'Aumentado';
 $string['decreased'] = 'Diminuído';
 $string['changed'] = 'Alterado';
+
+// Privacy API.
+$string['privacy:metadata:templates'] = 'Informações sobre modelos criados por usuários.';
+$string['privacy:metadata:templates:userid'] = 'O ID do usuário que criou o modelo.';
+$string['privacy:metadata:templates:name'] = 'O nome do modelo.';
+$string['privacy:metadata:templates:description'] = 'A descrição do modelo.';
+$string['privacy:metadata:templates:tags'] = 'Tags associadas ao modelo.';
+$string['privacy:metadata:templates:timecreated'] = 'Quando o modelo foi criado.';
+$string['privacy:metadata:templates:timemodified'] = 'Quando o modelo foi modificado pela última vez.';
+
+$string['privacy:metadata:history'] = 'Registro de importações de seções realizadas por usuários.';
+$string['privacy:metadata:history:userid'] = 'O ID do usuário que realizou a importação.';
+$string['privacy:metadata:history:source_courseid'] = 'O ID do curso de origem.';
+$string['privacy:metadata:history:source_sectionid'] = 'O ID da seção de origem.';
+$string['privacy:metadata:history:target_courseid'] = 'O ID do curso de destino.';
+$string['privacy:metadata:history:target_sectionid'] = 'O ID da seção de destino.';
+$string['privacy:metadata:history:timecreated'] = 'Quando a importação foi realizada.';
+
+$string['privacy:metadata:favorites'] = 'Informações sobre modelos favoritos do usuário.';
+$string['privacy:metadata:favorites:userid'] = 'O ID do usuário que adicionou o favorito.';
+$string['privacy:metadata:favorites:templateid'] = 'O ID do modelo favorito.';
+$string['privacy:metadata:favorites:timecreated'] = 'Quando o modelo foi adicionado aos favoritos.';
+
+$string['privacy:metadata:scheduled'] = 'Informações sobre importações agendadas.';
+$string['privacy:metadata:scheduled:userid'] = 'O ID do usuário que agendou a importação.';
+$string['privacy:metadata:scheduled:scheduled_time'] = 'Quando a importação está agendada.';
+$string['privacy:metadata:scheduled:status'] = 'O status da importação agendada.';
+$string['privacy:metadata:scheduled:timecreated'] = 'Quando a importação agendada foi criada.';
+
+$string['privacy:metadata:links'] = 'Informações sobre seções vinculadas para sincronização.';
+$string['privacy:metadata:links:userid'] = 'O ID do usuário que criou o vínculo.';
+$string['privacy:metadata:links:templateid'] = 'O ID do modelo vinculado.';
+$string['privacy:metadata:links:timecreated'] = 'Quando o vínculo foi criado.';
+
+// Settings.
+$string['generalsettings'] = 'Configurações gerais';
+$string['enabled'] = 'Habilitar plugin';
+$string['enabled_desc'] = 'Habilitar ou desabilitar a funcionalidade do plugin Reutilizar Unidade.';
+$string['showincourse'] = 'Mostrar no menu do curso';
+$string['showincourse_desc'] = 'Exibir a opção de importar unidade no menu do curso.';
+$string['limits'] = 'Limites';
+$string['maxtemplates'] = 'Máximo de modelos por usuário';
+$string['maxtemplates_desc'] = 'Número máximo de modelos que um usuário pode criar.';
+$string['historyretention'] = 'Retenção do histórico (dias)';
+$string['historyretention_desc'] = 'Número de dias para manter registros do histórico de importações.';
+$string['templatesettings'] = 'Configurações de modelos';
+$string['allowglobal'] = 'Permitir modelos globais';
+$string['allowglobal_desc'] = 'Permitir que os usuários compartilhem modelos globalmente em todo o site.';
+$string['requireapproval'] = 'Exigir aprovação para modelos globais';
+$string['requireapproval_desc'] = 'Exigir aprovação do administrador antes que os modelos fiquem disponíveis globalmente.';
+$string['allowcategoryshare'] = 'Permitir compartilhamento por categoria';
+$string['allowcategoryshare_desc'] = 'Permitir que os usuários compartilhem modelos dentro de sua categoria de curso.';
+$string['syncsettings'] = 'Configurações de sincronização';
+$string['allowautosync'] = 'Permitir auto-sincronização';
+$string['allowautosync_desc'] = 'Permitir que as seções sejam sincronizadas automaticamente quando os modelos são atualizados.';
+$string['defaultsyncmode'] = 'Modo de sincronização padrão';
+$string['defaultsyncmode_desc'] = 'Modo padrão para sincronizar seções com modelos.';
+$string['notificationsettings'] = 'Configurações de notificações';
+$string['notifyimport'] = 'Notificar ao concluir importação';
+$string['notifyimport_desc'] = 'Enviar uma notificação quando uma importação for concluída.';
+$string['notifytemplate'] = 'Notificar atualizações de modelos';
+$string['notifytemplate_desc'] = 'Enviar notificações quando modelos são compartilhados ou atualizados.';
+$string['cleanupsettings'] = 'Configurações de limpeza';
+$string['autocleanup'] = 'Limpeza automática de dados antigos';
+$string['autocleanup_desc'] = 'Limpar automaticamente importações agendadas antigas e registros do histórico.';
+$string['cleanupage'] = 'Idade de limpeza (dias)';
+$string['cleanupage_desc'] = 'Idade em dias após a qual as importações agendadas concluídas são limpas.';

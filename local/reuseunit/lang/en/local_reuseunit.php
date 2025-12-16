@@ -415,3 +415,70 @@ $string['changesummary'] = 'Change summary';
 $string['increased'] = 'Increased';
 $string['decreased'] = 'Decreased';
 $string['changed'] = 'Changed';
+
+// Privacy API.
+$string['privacy:metadata:templates'] = 'Information about templates created by users.';
+$string['privacy:metadata:templates:userid'] = 'The ID of the user who created the template.';
+$string['privacy:metadata:templates:name'] = 'The name of the template.';
+$string['privacy:metadata:templates:description'] = 'The description of the template.';
+$string['privacy:metadata:templates:tags'] = 'Tags associated with the template.';
+$string['privacy:metadata:templates:timecreated'] = 'When the template was created.';
+$string['privacy:metadata:templates:timemodified'] = 'When the template was last modified.';
+
+$string['privacy:metadata:history'] = 'A record of section imports performed by users.';
+$string['privacy:metadata:history:userid'] = 'The ID of the user who performed the import.';
+$string['privacy:metadata:history:source_courseid'] = 'The source course ID.';
+$string['privacy:metadata:history:source_sectionid'] = 'The source section ID.';
+$string['privacy:metadata:history:target_courseid'] = 'The target course ID.';
+$string['privacy:metadata:history:target_sectionid'] = 'The target section ID.';
+$string['privacy:metadata:history:timecreated'] = 'When the import was performed.';
+
+$string['privacy:metadata:favorites'] = 'Information about user\'s favorite templates.';
+$string['privacy:metadata:favorites:userid'] = 'The ID of the user who added the favorite.';
+$string['privacy:metadata:favorites:templateid'] = 'The ID of the favorited template.';
+$string['privacy:metadata:favorites:timecreated'] = 'When the template was added to favorites.';
+
+$string['privacy:metadata:scheduled'] = 'Information about scheduled imports.';
+$string['privacy:metadata:scheduled:userid'] = 'The ID of the user who scheduled the import.';
+$string['privacy:metadata:scheduled:scheduled_time'] = 'When the import is scheduled to run.';
+$string['privacy:metadata:scheduled:status'] = 'The status of the scheduled import.';
+$string['privacy:metadata:scheduled:timecreated'] = 'When the scheduled import was created.';
+
+$string['privacy:metadata:links'] = 'Information about linked sections for synchronization.';
+$string['privacy:metadata:links:userid'] = 'The ID of the user who created the link.';
+$string['privacy:metadata:links:templateid'] = 'The ID of the linked template.';
+$string['privacy:metadata:links:timecreated'] = 'When the link was created.';
+
+// Settings.
+$string['generalsettings'] = 'General settings';
+$string['enabled'] = 'Enable plugin';
+$string['enabled_desc'] = 'Enable or disable the Reuse Unit plugin functionality.';
+$string['showincourse'] = 'Show in course menu';
+$string['showincourse_desc'] = 'Display the import unit option in the course menu.';
+$string['limits'] = 'Limits';
+$string['maxtemplates'] = 'Maximum templates per user';
+$string['maxtemplates_desc'] = 'Maximum number of templates a user can create.';
+$string['historyretention'] = 'History retention (days)';
+$string['historyretention_desc'] = 'Number of days to keep import history records.';
+$string['templatesettings'] = 'Template settings';
+$string['allowglobal'] = 'Allow global templates';
+$string['allowglobal_desc'] = 'Allow users to share templates globally across the site.';
+$string['requireapproval'] = 'Require approval for global templates';
+$string['requireapproval_desc'] = 'Require administrator approval before templates become globally available.';
+$string['allowcategoryshare'] = 'Allow category sharing';
+$string['allowcategoryshare_desc'] = 'Allow users to share templates within their course category.';
+$string['syncsettings'] = 'Synchronization settings';
+$string['allowautosync'] = 'Allow auto-sync';
+$string['allowautosync_desc'] = 'Allow sections to be automatically synchronized when templates are updated.';
+$string['defaultsyncmode'] = 'Default sync mode';
+$string['defaultsyncmode_desc'] = 'Default mode for synchronizing sections with templates.';
+$string['notificationsettings'] = 'Notification settings';
+$string['notifyimport'] = 'Notify on import completion';
+$string['notifyimport_desc'] = 'Send a notification when an import is completed.';
+$string['notifytemplate'] = 'Notify on template updates';
+$string['notifytemplate_desc'] = 'Send notifications when templates are shared or updated.';
+$string['cleanupsettings'] = 'Cleanup settings';
+$string['autocleanup'] = 'Auto-cleanup old data';
+$string['autocleanup_desc'] = 'Automatically clean up old scheduled imports and history records.';
+$string['cleanupage'] = 'Cleanup age (days)';
+$string['cleanupage_desc'] = 'Age in days after which completed scheduled imports are cleaned up.';

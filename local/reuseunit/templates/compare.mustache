@@ -1,0 +1,368 @@
+{{!
+    Diff comparison template for local_reuseunit.
+
+    @package    local_reuseunit
+    @copyright  2024 hyukudan
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="reuseunit-compare" data-mode="{{mode}}">
+    {{! Mode selector tabs }}
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link {{#modesections}}active{{/modesections}}" id="sections-tab" data-toggle="tab"
+               href="#sections-panel" role="tab" aria-controls="sections-panel" aria-selected="{{modesections}}">
+                <i class="fa fa-copy mr-1"></i>
+                {{#str}}comparesections, local_reuseunit{{/str}}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{#modeversions}}active{{/modeversions}}" id="versions-tab" data-toggle="tab"
+               href="#versions-panel" role="tab" aria-controls="versions-panel" aria-selected="{{modeversions}}">
+                <i class="fa fa-history mr-1"></i>
+                {{#str}}compareversions, local_reuseunit{{/str}}
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        {{! Section comparison panel }}
+        <div class="tab-pane fade {{#modesections}}show active{{/modesections}}" id="sections-panel" role="tabpanel">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{#str}}comparesections, local_reuseunit{{/str}}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {{! Source section }}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <strong>{{#str}}sourcecourse, local_reuseunit{{/str}}</strong>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="source-course-select">{{#str}}course, local_reuseunit{{/str}}</label>
+                                        <select class="form-control" id="source-course-select">
+                                            <option value="">{{#str}}selectsourcecourse, local_reuseunit{{/str}}</option>
+                                            {{#courses}}
+                                            <option value="{{id}}">{{fullname}}</option>
+                                            {{/courses}}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="source-section-select">{{#str}}section, local_reuseunit{{/str}}</label>
+                                        <select class="form-control" id="source-section-select" disabled>
+                                            <option value="">{{#str}}selectsection, local_reuseunit{{/str}}</option>
+                                        </select>
+                                    </div>
+                                    <div id="source-section-preview" class="section-preview d-none">
+                                        <hr>
+                                        <h6 class="section-name"></h6>
+                                        <p class="section-content text-muted mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{! Target section }}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <strong>{{#str}}destinationcourse, local_reuseunit{{/str}}</strong>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="target-course-select">{{#str}}course, local_reuseunit{{/str}}</label>
+                                        <select class="form-control" id="target-course-select">
+                                            <option value="">{{#str}}selectsourcecourse, local_reuseunit{{/str}}</option>
+                                            {{#courses}}
+                                            <option value="{{id}}">{{fullname}}</option>
+                                            {{/courses}}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="target-section-select">{{#str}}section, local_reuseunit{{/str}}</label>
+                                        <select class="form-control" id="target-section-select" disabled>
+                                            <option value="">{{#str}}selectsection, local_reuseunit{{/str}}</option>
+                                        </select>
+                                    </div>
+                                    <div id="target-section-preview" class="section-preview d-none">
+                                        <hr>
+                                        <h6 class="section-name"></h6>
+                                        <p class="section-content text-muted mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-primary btn-lg" id="compare-sections-btn" disabled>
+                            <i class="fa fa-exchange mr-2"></i>
+                            {{#str}}compare, local_reuseunit{{/str}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{! Section comparison results }}
+            <div id="section-comparison-results" class="d-none">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{#str}}differences, local_reuseunit{{/str}}</h5>
+                        <div id="section-diff-summary" class="badge-container"></div>
+                    </div>
+                    <div class="card-body">
+                        {{! Summary stats }}
+                        <div class="row mb-4" id="section-diff-stats">
+                            <div class="col-md-3 col-6">
+                                <div class="text-center p-3 bg-success text-white rounded">
+                                    <h3 class="added-count mb-0">0</h3>
+                                    <small>{{#str}}added, local_reuseunit{{/str}}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="text-center p-3 bg-danger text-white rounded">
+                                    <h3 class="removed-count mb-0">0</h3>
+                                    <small>{{#str}}removed, local_reuseunit{{/str}}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="text-center p-3 bg-warning text-dark rounded">
+                                    <h3 class="modified-count mb-0">0</h3>
+                                    <small>{{#str}}modified, local_reuseunit{{/str}}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="text-center p-3 bg-secondary text-white rounded">
+                                    <h3 class="unchanged-count mb-0">0</h3>
+                                    <small>{{#str}}unchanged, local_reuseunit{{/str}}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{! Detailed diff }}
+                        <div class="row">
+                            {{! Added items }}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-success h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <i class="fa fa-plus-circle mr-1"></i>
+                                        {{#str}}added, local_reuseunit{{/str}}
+                                    </div>
+                                    <ul class="list-group list-group-flush added-items">
+                                        <li class="list-group-item text-muted no-items">
+                                            {{#str}}nodifferences, local_reuseunit{{/str}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {{! Removed items }}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-danger h-100">
+                                    <div class="card-header bg-danger text-white">
+                                        <i class="fa fa-minus-circle mr-1"></i>
+                                        {{#str}}removed, local_reuseunit{{/str}}
+                                    </div>
+                                    <ul class="list-group list-group-flush removed-items">
+                                        <li class="list-group-item text-muted no-items">
+                                            {{#str}}nodifferences, local_reuseunit{{/str}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            {{! Modified items }}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-warning h-100">
+                                    <div class="card-header bg-warning text-dark">
+                                        <i class="fa fa-pencil mr-1"></i>
+                                        {{#str}}modified, local_reuseunit{{/str}}
+                                    </div>
+                                    <ul class="list-group list-group-flush modified-items">
+                                        <li class="list-group-item text-muted no-items">
+                                            {{#str}}nodifferences, local_reuseunit{{/str}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {{! Unchanged items }}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-secondary h-100">
+                                    <div class="card-header bg-secondary text-white">
+                                        <i class="fa fa-check mr-1"></i>
+                                        {{#str}}unchanged, local_reuseunit{{/str}}
+                                    </div>
+                                    <ul class="list-group list-group-flush unchanged-items" style="max-height: 200px; overflow-y: auto;">
+                                        <li class="list-group-item text-muted no-items">
+                                            {{#str}}nodifferences, local_reuseunit{{/str}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{! Version comparison panel }}
+        <div class="tab-pane fade {{#modeversions}}show active{{/modeversions}}" id="versions-panel" role="tabpanel">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{#str}}compareversions, local_reuseunit{{/str}}</h5>
+                </div>
+                <div class="card-body">
+                    {{#hastemplates}}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="template-select">{{#str}}templates, local_reuseunit{{/str}}</label>
+                                <select class="form-control" id="template-select">
+                                    <option value="">{{#str}}searchtemplates, local_reuseunit{{/str}}</option>
+                                    {{#templates}}
+                                    <option value="{{id}}">{{name}}</option>
+                                    {{/templates}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="version1-select">{{#str}}olderversion, local_reuseunit{{/str}}</label>
+                                <select class="form-control" id="version1-select" disabled>
+                                    <option value="">{{#str}}selectversions, local_reuseunit{{/str}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="version2-select">{{#str}}newerversion, local_reuseunit{{/str}}</label>
+                                <select class="form-control" id="version2-select" disabled>
+                                    <option value="">{{#str}}selectversions, local_reuseunit{{/str}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-primary btn-lg" id="compare-versions-btn" disabled>
+                            <i class="fa fa-exchange mr-2"></i>
+                            {{#str}}compare, local_reuseunit{{/str}}
+                        </button>
+                    </div>
+                    {{/hastemplates}}
+                    {{^hastemplates}}
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle mr-2"></i>
+                        {{#str}}notemplates, local_reuseunit{{/str}}
+                    </div>
+                    {{/hastemplates}}
+                </div>
+            </div>
+
+            {{! Version comparison results }}
+            <div id="version-comparison-results" class="d-none">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{#str}}changesummary, local_reuseunit{{/str}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-primary mb-3">
+                                    <div class="card-header bg-primary text-white">
+                                        <span id="version1-label">{{#str}}olderversion, local_reuseunit{{/str}}</span>
+                                    </div>
+                                    <div class="card-body" id="version1-details">
+                                        <p class="mb-1"><strong>{{#str}}activities, local_reuseunit{{/str}}:</strong> <span class="v1-activities">-</span></p>
+                                        <p class="mb-1"><strong>{{#str}}resources, local_reuseunit{{/str}}:</strong> <span class="v1-resources">-</span></p>
+                                        <p class="mb-1"><strong>{{#str}}sourcecourse, local_reuseunit{{/str}}:</strong> <span class="v1-course">-</span></p>
+                                        <p class="mb-0"><strong>{{#str}}section, local_reuseunit{{/str}}:</strong> <span class="v1-section">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-info mb-3">
+                                    <div class="card-header bg-info text-white">
+                                        <span id="version2-label">{{#str}}newerversion, local_reuseunit{{/str}}</span>
+                                    </div>
+                                    <div class="card-body" id="version2-details">
+                                        <p class="mb-1"><strong>{{#str}}activities, local_reuseunit{{/str}}:</strong> <span class="v2-activities">-</span></p>
+                                        <p class="mb-1"><strong>{{#str}}resources, local_reuseunit{{/str}}:</strong> <span class="v2-resources">-</span></p>
+                                        <p class="mb-1"><strong>{{#str}}sourcecourse, local_reuseunit{{/str}}:</strong> <span class="v2-course">-</span></p>
+                                        <p class="mb-0"><strong>{{#str}}section, local_reuseunit{{/str}}:</strong> <span class="v2-section">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{! Changes summary }}
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">{{#str}}differences, local_reuseunit{{/str}}</h6>
+                                <div class="row" id="version-changes">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="mr-2">{{#str}}activities, local_reuseunit{{/str}}:</span>
+                                            <span class="badge activities-change">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="mr-2">{{#str}}resources, local_reuseunit{{/str}}:</span>
+                                            <span class="badge resources-change">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="mr-2">{{#str}}source, local_reuseunit{{/str}}:</span>
+                                            <span class="badge source-change">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{! Loading overlay }}
+<div id="compare-loading" class="d-none">
+    <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">{{#str}}loading, local_reuseunit{{/str}}</span>
+        </div>
+        <span class="ml-3">{{#str}}loading, local_reuseunit{{/str}}</span>
+    </div>
+</div>
+
+<style>
+.reuseunit-compare .section-preview {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+.reuseunit-compare .list-group-item.diff-item {
+    display: flex;
+    align-items: center;
+}
+.reuseunit-compare .diff-item .item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+.reuseunit-compare .diff-item .item-name {
+    flex: 1;
+}
+.reuseunit-compare .badge-success { background-color: #28a745; }
+.reuseunit-compare .badge-danger { background-color: #dc3545; }
+.reuseunit-compare .badge-warning { background-color: #ffc107; color: #212529; }
+.reuseunit-compare .badge-secondary { background-color: #6c757d; }
+</style>
