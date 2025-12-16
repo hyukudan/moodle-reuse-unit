@@ -155,6 +155,15 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Statistics service.
+    'local_reuseunit_get_statistics' => [
+        'classname' => 'local_reuseunit\external\get_statistics',
+        'description' => 'Get usage statistics for dashboard',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -176,6 +185,7 @@ $services = [
             'local_reuseunit_batch_import',
             'local_reuseunit_get_template_versions',
             'local_reuseunit_update_template_version',
+            'local_reuseunit_get_statistics',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
