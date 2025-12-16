@@ -368,3 +368,26 @@ $string['keeplinked_desc'] = 'Manter um vínculo para receber notificações qua
 $string['nolinkedsections'] = 'Nenhuma seção vinculada neste curso';
 $string['linkedto'] = 'Vinculado a: {$a}';
 $string['error_sourcenotfound'] = 'Conteúdo do modelo de origem não encontrado';
+
+// Scheduled imports.
+$string['scheduleimport'] = 'Agendar importação';
+$string['scheduledimports'] = 'Importações agendadas';
+$string['importscheduled'] = 'Importação agendada com sucesso';
+$string['schedulecancelled'] = 'Importação agendada cancelada';
+$string['schedulefor'] = 'Agendar para';
+$string['importnow'] = 'Importar agora';
+$string['importlater'] = 'Importar depois';
+$string['scheduledtime'] = 'Hora agendada';
+$string['noscheduledimports'] = 'Nenhuma importação agendada';
+$string['status_pending'] = 'Pendente';
+$string['status_running'] = 'Em execução';
+$string['status_completed'] = 'Concluído';
+$string['status_completedwitherrors'] = 'Concluído com erros';
+$string['status_cancelled'] = 'Cancelado';
+$string['completed'] = 'Concluído';
+$string['completedwitherrors'] = 'Concluído com erros';
+$string['cancelschedule'] = 'Cancelar';
+$string['viewdetails'] = 'Ver detalhes';
+$string['error_pasttime'] = 'A hora agendada não pode ser no passado';
+$string['error_cannotcancel'] = 'Esta importação agendada não pode ser cancelada';
+$string['task_scheduledimport'] = 'Processar importação de seção agendada';

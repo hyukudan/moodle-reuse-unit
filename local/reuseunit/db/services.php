@@ -230,6 +230,31 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Scheduled import services.
+    'local_reuseunit_schedule_import' => [
+        'classname' => 'local_reuseunit\external\schedule_import',
+        'description' => 'Schedule an import for later execution',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_get_scheduled_imports' => [
+        'classname' => 'local_reuseunit\external\get_scheduled_imports',
+        'description' => 'Get scheduled imports for the user',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_cancel_scheduled_import' => [
+        'classname' => 'local_reuseunit\external\cancel_scheduled_import',
+        'description' => 'Cancel a scheduled import',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -260,6 +285,9 @@ $services = [
             'local_reuseunit_unlink_section',
             'local_reuseunit_sync_section',
             'local_reuseunit_get_linked_sections',
+            'local_reuseunit_schedule_import',
+            'local_reuseunit_get_scheduled_imports',
+            'local_reuseunit_cancel_scheduled_import',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

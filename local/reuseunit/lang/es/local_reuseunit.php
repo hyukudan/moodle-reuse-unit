@@ -368,3 +368,26 @@ $string['keeplinked_desc'] = 'Mantener un vínculo para recibir notificaciones c
 $string['nolinkedsections'] = 'No hay secciones vinculadas en este curso';
 $string['linkedto'] = 'Vinculado a: {$a}';
 $string['error_sourcenotfound'] = 'Contenido de plantilla origen no encontrado';
+
+// Scheduled imports.
+$string['scheduleimport'] = 'Programar importación';
+$string['scheduledimports'] = 'Importaciones programadas';
+$string['importscheduled'] = 'Importación programada correctamente';
+$string['schedulecancelled'] = 'Importación programada cancelada';
+$string['schedulefor'] = 'Programar para';
+$string['importnow'] = 'Importar ahora';
+$string['importlater'] = 'Importar después';
+$string['scheduledtime'] = 'Hora programada';
+$string['noscheduledimports'] = 'No hay importaciones programadas';
+$string['status_pending'] = 'Pendiente';
+$string['status_running'] = 'En ejecución';
+$string['status_completed'] = 'Completado';
+$string['status_completedwitherrors'] = 'Completado con errores';
+$string['status_cancelled'] = 'Cancelado';
+$string['completed'] = 'Completado';
+$string['completedwitherrors'] = 'Completado con errores';
+$string['cancelschedule'] = 'Cancelar';
+$string['viewdetails'] = 'Ver detalles';
+$string['error_pasttime'] = 'La hora programada no puede ser en el pasado';
+$string['error_cannotcancel'] = 'Esta importación programada no se puede cancelar';
+$string['task_scheduledimport'] = 'Procesar importación de sección programada';

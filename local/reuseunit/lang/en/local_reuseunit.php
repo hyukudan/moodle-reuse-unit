@@ -368,3 +368,26 @@ $string['keeplinked_desc'] = 'Maintain a link to receive notifications when the 
 $string['nolinkedsections'] = 'No linked sections in this course';
 $string['linkedto'] = 'Linked to: {$a}';
 $string['error_sourcenotfound'] = 'Source template content not found';
+
+// Scheduled imports.
+$string['scheduleimport'] = 'Schedule import';
+$string['scheduledimports'] = 'Scheduled imports';
+$string['importscheduled'] = 'Import scheduled successfully';
+$string['schedulecancelled'] = 'Scheduled import cancelled';
+$string['schedulefor'] = 'Schedule for';
+$string['importnow'] = 'Import now';
+$string['importlater'] = 'Import later';
+$string['scheduledtime'] = 'Scheduled time';
+$string['noscheduledimports'] = 'No scheduled imports';
+$string['status_pending'] = 'Pending';
+$string['status_running'] = 'Running';
+$string['status_completed'] = 'Completed';
+$string['status_completedwitherrors'] = 'Completed with errors';
+$string['status_cancelled'] = 'Cancelled';
+$string['completed'] = 'Completed';
+$string['completedwitherrors'] = 'Completed with errors';
+$string['cancelschedule'] = 'Cancel';
+$string['viewdetails'] = 'View details';
+$string['error_pasttime'] = 'Scheduled time cannot be in the past';
+$string['error_cannotcancel'] = 'This scheduled import cannot be cancelled';
+$string['task_scheduledimport'] = 'Process scheduled section import';

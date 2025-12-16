@@ -155,5 +155,40 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024121607, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2024121608) {
+        // Define table local_reuseunit_scheduled for scheduled imports.
+        $table = new xmldb_table('local_reuseunit_scheduled');
+
+        // Adding fields.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('dest_courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('import_data', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('scheduled_time', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, null, null, 'pending');
+        $table->add_field('started_at', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('completed_at', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('result_data', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('dest_courseid', XMLDB_KEY_FOREIGN, ['dest_courseid'], 'course', ['id']);
+
+        // Adding indexes.
+        $table->add_index('userid_status', XMLDB_INDEX_NOTUNIQUE, ['userid', 'status']);
+        $table->add_index('scheduled_time_status', XMLDB_INDEX_NOTUNIQUE, ['scheduled_time', 'status']);
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2024121608, 'local', 'reuseunit');
+    }
+
     return true;
 }
