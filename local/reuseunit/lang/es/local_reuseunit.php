@@ -592,3 +592,40 @@ $string['privacy:metadata:synchistory'] = 'Historial de operaciones de sincroniz
 $string['privacy:metadata:synchistory:userid'] = 'El ID del usuario que realizó la sincronización.';
 $string['privacy:metadata:synchistory:sync_mode'] = 'El modo de sincronización utilizado.';
 $string['privacy:metadata:synchistory:timecreated'] = 'Cuándo se realizó la sincronización.';
+
+// Limitación de tasa.
+$string['ratelimit_exceeded'] = 'Límite de solicitudes excedido. Por favor espera {$a} minutos antes de intentar de nuevo.';
+
+// Registro de auditoría.
+$string['auditlog'] = 'Registro de auditoría';
+$string['auditlog_desc'] = 'Ver registro de auditoría para aprobaciones de plantillas y acciones significativas.';
+$string['audit_template_submitted'] = 'Plantilla enviada para aprobación';
+$string['audit_template_approved'] = 'Plantilla aprobada';
+$string['audit_template_rejected'] = 'Plantilla rechazada';
+$string['audit_template_deleted'] = 'Plantilla eliminada';
+$string['audit_sync_completed'] = 'Sincronización completada';
+$string['audit_sync_failed'] = 'Sincronización fallida';
+$string['audit_bulk_sync_completed'] = 'Sincronización masiva completada';
+$string['noauditlogs'] = 'No se encontraron registros de auditoría.';
+
+// Notificaciones de fallo de sincronización.
+$string['messageprovider:syncfailed'] = 'Notificación de fallo de sincronización';
+$string['messageprovider:bulksynccompleted'] = 'Notificación de sincronización masiva completada';
+$string['notification_syncfailed_subject'] = 'Fallo en la sincronización de sección';
+$string['notification_syncfailed_message'] = 'La sincronización de la plantilla "{$a->templatename}" a tu curso "{$a->coursename}" ha fallado. Error: {$a->error}';
+$string['notification_bulksynccompleted_subject'] = 'Sincronización masiva completada';
+$string['notification_bulksynccompleted_message'] = 'La sincronización masiva de la plantilla "{$a->templatename}" ha completado. Resultados: {$a->success} de {$a->total} secciones sincronizadas correctamente. {$a->failed} fallaron.';
+
+// Cadenas adicionales.
+$string['viewlinkedsections'] = 'Ver secciones vinculadas';
+$string['viewtemplate'] = 'Ver plantilla';
+$string['unknowntemplate'] = 'Plantilla desconocida';
+$string['unknowncourse'] = 'Curso desconocido';
+$string['unknownerror'] = 'Error desconocido';
+
+// Privacidad para registro de auditoría.
+$string['privacy:metadata:audit'] = 'Registro de auditoría de acciones del usuario.';
+$string['privacy:metadata:audit:userid'] = 'El ID del usuario que realizó la acción.';
+$string['privacy:metadata:audit:action'] = 'El tipo de acción realizada.';
+$string['privacy:metadata:audit:ipaddress'] = 'Dirección IP del usuario.';
+$string['privacy:metadata:audit:timecreated'] = 'Cuándo se realizó la acción.';

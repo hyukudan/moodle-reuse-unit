@@ -27,6 +27,9 @@ use external_multiple_structure;
 use external_value;
 use context_course;
 use local_reuseunit\section_helper;
+use local_reuseunit\rate_limiter;
+use local_reuseunit\audit_logger;
+use local_reuseunit\notification_helper;
 
 /**
  * External function to bulk sync all linked sections for a template.
@@ -67,6 +70,19 @@ class bulk_sync extends external_api {
             'mode' => $mode,
             'linkids' => $linkids,
         ]);
+
+        // Check rate limiting.
+        $limits = rate_limiter::get_limits('bulk_sync');
+        $ratelimit = rate_limiter::throttle(
+            $USER->id,
+            'bulk_sync',
+            $limits['max_requests'],
+            $limits['window_seconds']
+        );
+
+        if (!$ratelimit['allowed']) {
+            throw new \moodle_exception('ratelimit_exceeded', 'local_reuseunit', '', ceil(($ratelimit['reset_time'] - time()) / 60));
+        }
 
         // Get the template.
         $template = $DB->get_record('local_reuseunit_templates', ['id' => $params['templateid']], '*', MUST_EXIST);
@@ -189,6 +205,28 @@ class bulk_sync extends external_api {
                 $failcount++;
             }
         }
+
+        // Log bulk sync completion in audit trail.
+        audit_logger::log(
+            audit_logger::ACTION_BULK_SYNC_COMPLETED,
+            $USER->id,
+            $params['templateid'],
+            'template',
+            [
+                'total' => count($links),
+                'success' => $successcount,
+                'failed' => $failcount,
+                'mode' => $params['mode'],
+            ]
+        );
+
+        // Send notification about bulk sync completion.
+        $bulkdata = new \stdClass();
+        $bulkdata->templateid = $params['templateid'];
+        $bulkdata->total = count($links);
+        $bulkdata->success = $successcount;
+        $bulkdata->failed = $failcount;
+        notification_helper::notify_bulk_sync_completed($USER->id, $bulkdata);
 
         return [
             'success' => $failcount === 0,

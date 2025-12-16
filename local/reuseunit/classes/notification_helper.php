@@ -248,6 +248,78 @@ class notification_helper {
     }
 
     /**
+     * Send notification when a sync operation fails.
+     *
+     * @param int $userid User ID to notify
+     * @param object $syncdata Sync details
+     * @return bool Success
+     */
+    public static function notify_sync_failed(int $userid, object $syncdata): bool {
+        global $DB;
+
+        $user = $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $syncdata->courseid]);
+        $template = $DB->get_record('local_reuseunit_templates', ['id' => $syncdata->templateid]);
+
+        $subject = get_string('notification_syncfailed_subject', 'local_reuseunit');
+        $message = get_string('notification_syncfailed_message', 'local_reuseunit', [
+            'templatename' => $template ? $template->name : get_string('unknowntemplate', 'local_reuseunit'),
+            'coursename' => $course ? $course->fullname : get_string('unknowncourse', 'local_reuseunit'),
+            'error' => $syncdata->error ?? get_string('unknownerror', 'local_reuseunit'),
+        ]);
+
+        $contexturl = new \moodle_url('/local/reuseunit/index.php', [
+            'tab' => 'linked',
+            'courseid' => $syncdata->courseid,
+        ]);
+
+        return self::send_notification(
+            $user,
+            'syncfailed',
+            $subject,
+            $message,
+            $contexturl->out(false),
+            get_string('viewlinkedsections', 'local_reuseunit')
+        );
+    }
+
+    /**
+     * Send notification when bulk sync completes.
+     *
+     * @param int $userid User ID to notify
+     * @param object $bulkdata Bulk sync details
+     * @return bool Success
+     */
+    public static function notify_bulk_sync_completed(int $userid, object $bulkdata): bool {
+        global $DB;
+
+        $user = $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST);
+        $template = $DB->get_record('local_reuseunit_templates', ['id' => $bulkdata->templateid]);
+
+        $subject = get_string('notification_bulksynccompleted_subject', 'local_reuseunit');
+        $message = get_string('notification_bulksynccompleted_message', 'local_reuseunit', [
+            'templatename' => $template ? $template->name : get_string('unknowntemplate', 'local_reuseunit'),
+            'total' => $bulkdata->total,
+            'success' => $bulkdata->success,
+            'failed' => $bulkdata->failed,
+        ]);
+
+        $contexturl = new \moodle_url('/local/reuseunit/index.php', [
+            'tab' => 'templates',
+            'templateid' => $bulkdata->templateid,
+        ]);
+
+        return self::send_notification(
+            $user,
+            'bulksynccompleted',
+            $subject,
+            $message,
+            $contexturl->out(false),
+            get_string('viewtemplate', 'local_reuseunit')
+        );
+    }
+
+    /**
      * Send a notification message.
      *
      * @param object $user User object to send to

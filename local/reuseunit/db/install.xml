@@ -197,5 +197,28 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
+
+    <TABLE NAME="local_reuseunit_audit" COMMENT="Audit log for template approvals and significant actions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the action"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="50" NOTNULL="true" COMMENT="Action type"/>
+        <FIELD NAME="targetid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="ID of target object"/>
+        <FIELD NAME="targettype" TYPE="char" LENGTH="30" NOTNULL="false" COMMENT="Type of target (template, link, etc)"/>
+        <FIELD NAME="details" TYPE="text" NOTNULL="false" COMMENT="JSON encoded action details"/>
+        <FIELD NAME="ipaddress" TYPE="char" LENGTH="45" NOTNULL="false" COMMENT="IP address of user"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="When action was performed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="action" UNIQUE="false" FIELDS="action"/>
+        <INDEX NAME="targettype_targetid" UNIQUE="false" FIELDS="targettype, targetid"/>
+        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
+        <INDEX NAME="userid_timecreated" UNIQUE="false" FIELDS="userid, timecreated"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

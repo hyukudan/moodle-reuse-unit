@@ -373,5 +373,38 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025121608, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2025121611) {
+        // Define table local_reuseunit_audit for audit logging.
+        $table = new xmldb_table('local_reuseunit_audit');
+
+        // Adding fields.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('action', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('targetid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('targettype', XMLDB_TYPE_CHAR, '30', null, null, null, null);
+        $table->add_field('details', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('ipaddress', XMLDB_TYPE_CHAR, '45', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Adding indexes.
+        $table->add_index('action', XMLDB_INDEX_NOTUNIQUE, ['action']);
+        $table->add_index('targettype_targetid', XMLDB_INDEX_NOTUNIQUE, ['targettype', 'targetid']);
+        $table->add_index('timecreated', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
+        $table->add_index('userid_timecreated', XMLDB_INDEX_NOTUNIQUE, ['userid', 'timecreated']);
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121611, 'local', 'reuseunit');
+    }
+
     return true;
 }

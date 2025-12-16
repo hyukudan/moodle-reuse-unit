@@ -15,17 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data.
+ * Cache definitions for local_reuseunit.
  *
  * @package    local_reuseunit
- * @copyright  2025 Your Name
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_reuseunit';
-$plugin->version = 2025121611;
-$plugin->requires = 2022112800; // Moodle 4.0+
-$plugin->maturity = MATURITY_BETA;
-$plugin->release = '0.9.0';
+$definitions = [
+    // Rate limiting cache for bulk operations.
+    'ratelimit' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl' => 3600, // 1 hour TTL.
+    ],
+];

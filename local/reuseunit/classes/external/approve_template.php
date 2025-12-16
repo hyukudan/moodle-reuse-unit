@@ -26,6 +26,7 @@ use external_single_structure;
 use external_value;
 use context_system;
 use local_reuseunit\notification_helper;
+use local_reuseunit\audit_logger;
 
 /**
  * External function to approve a global template.
@@ -82,6 +83,13 @@ class approve_template extends external_api {
         $template->timemodified = time();
 
         $DB->update_record('local_reuseunit_templates', $template);
+
+        // Log approval in audit trail.
+        audit_logger::log_approval_action(
+            audit_logger::ACTION_TEMPLATE_APPROVED,
+            $USER->id,
+            $template
+        );
 
         // Notify template owner.
         notification_helper::notify_template_approved($template->userid, $template);

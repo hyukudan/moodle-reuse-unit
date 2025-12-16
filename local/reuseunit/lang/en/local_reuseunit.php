@@ -592,3 +592,40 @@ $string['privacy:metadata:synchistory'] = 'History of section synchronization op
 $string['privacy:metadata:synchistory:userid'] = 'The ID of the user who performed the sync.';
 $string['privacy:metadata:synchistory:sync_mode'] = 'The synchronization mode used.';
 $string['privacy:metadata:synchistory:timecreated'] = 'When the sync was performed.';
+
+// Rate limiting.
+$string['ratelimit_exceeded'] = 'Rate limit exceeded. Please wait {$a} minutes before trying again.';
+
+// Audit trail.
+$string['auditlog'] = 'Audit log';
+$string['auditlog_desc'] = 'View audit trail for template approvals and significant actions.';
+$string['audit_template_submitted'] = 'Template submitted for approval';
+$string['audit_template_approved'] = 'Template approved';
+$string['audit_template_rejected'] = 'Template rejected';
+$string['audit_template_deleted'] = 'Template deleted';
+$string['audit_sync_completed'] = 'Sync completed';
+$string['audit_sync_failed'] = 'Sync failed';
+$string['audit_bulk_sync_completed'] = 'Bulk sync completed';
+$string['noauditlogs'] = 'No audit logs found.';
+
+// Sync failure notifications.
+$string['messageprovider:syncfailed'] = 'Sync failed notification';
+$string['messageprovider:bulksynccompleted'] = 'Bulk sync completed notification';
+$string['notification_syncfailed_subject'] = 'Section synchronization failed';
+$string['notification_syncfailed_message'] = 'The synchronization of template "{$a->templatename}" to your course "{$a->coursename}" has failed. Error: {$a->error}';
+$string['notification_bulksynccompleted_subject'] = 'Bulk synchronization completed';
+$string['notification_bulksynccompleted_message'] = 'Bulk synchronization of template "{$a->templatename}" has completed. Results: {$a->success} of {$a->total} sections synced successfully. {$a->failed} failed.';
+
+// Additional strings.
+$string['viewlinkedsections'] = 'View linked sections';
+$string['viewtemplate'] = 'View template';
+$string['unknowntemplate'] = 'Unknown template';
+$string['unknowncourse'] = 'Unknown course';
+$string['unknownerror'] = 'Unknown error';
+
+// Privacy for audit logs.
+$string['privacy:metadata:audit'] = 'Audit log of user actions.';
+$string['privacy:metadata:audit:userid'] = 'The ID of the user who performed the action.';
+$string['privacy:metadata:audit:action'] = 'The type of action performed.';
+$string['privacy:metadata:audit:ipaddress'] = 'IP address of the user.';
+$string['privacy:metadata:audit:timecreated'] = 'When the action was performed.';
