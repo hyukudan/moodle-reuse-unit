@@ -19,7 +19,7 @@
  *
  * @package    local_reuseunit
  * @category   test
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +34,7 @@ use Behat\Mink\Exception\ExpectationException;
  *
  * @package    local_reuseunit
  * @category   test
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_local_reuseunit extends behat_base {

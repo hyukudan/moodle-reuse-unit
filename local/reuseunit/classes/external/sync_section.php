@@ -30,7 +30,7 @@ use context_course;
  * External function to sync a linked section with its template.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_section extends external_api {

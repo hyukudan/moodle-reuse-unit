@@ -27,7 +27,7 @@ use local_reuseunit\privacy\provider;
  *
  * @package    local_reuseunit
  * @category   test
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_reuseunit\privacy\provider
  */

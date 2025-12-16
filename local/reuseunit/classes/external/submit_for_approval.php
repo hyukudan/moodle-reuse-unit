@@ -31,7 +31,7 @@ use local_reuseunit\notification_helper;
  * External function to submit a template for global approval.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class submit_for_approval extends external_api {

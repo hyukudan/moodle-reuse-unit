@@ -18,14 +18,14 @@
  * Plugin version and other meta-data.
  *
  * @package    local_reuseunit
- * @copyright  2024 Your Name
+ * @copyright  2025 Your Name
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_reuseunit';
-$plugin->version = 2024121612;
+$plugin->version = 2025121601;
 $plugin->requires = 2022112800; // Moodle 4.0+
 $plugin->maturity = MATURITY_BETA;
 $plugin->release = '0.5.2';

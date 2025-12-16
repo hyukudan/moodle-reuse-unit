@@ -18,7 +18,7 @@
  * Backup plugin for local_reuseunit.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_local_plugin.class.php');
  * It includes section links for synchronization tracking.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_local_reuseunit_plugin extends backup_local_plugin {

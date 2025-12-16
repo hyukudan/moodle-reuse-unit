@@ -22,7 +22,7 @@
  * and configuration settings.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

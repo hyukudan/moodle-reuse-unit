@@ -31,7 +31,7 @@ use context_course;
  * External function to compare two sections and show differences.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class compare_sections extends external_api {

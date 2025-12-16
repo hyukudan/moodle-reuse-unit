@@ -31,7 +31,7 @@ use context_system;
  * External function to get scheduled imports for the current user.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_scheduled_imports extends external_api {

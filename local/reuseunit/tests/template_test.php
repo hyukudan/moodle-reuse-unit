@@ -28,7 +28,7 @@ require_once($CFG->dirroot . '/local/reuseunit/classes/external/delete_template.
  *
  * @package    local_reuseunit
  * @category   test
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class template_test extends \advanced_testcase {

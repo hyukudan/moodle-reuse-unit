@@ -34,7 +34,7 @@ use backup;
  * External function to save a section as a template.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class save_template extends external_api {

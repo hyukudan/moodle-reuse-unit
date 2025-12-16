@@ -18,7 +18,7 @@
  * Restore plugin for local_reuseunit.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/backup/moodle2/restore_local_plugin.class.php');
  * This handles restoring plugin-specific data when a course is restored.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_local_reuseunit_plugin extends restore_local_plugin {

@@ -36,7 +36,7 @@ use restore_dbops;
  * External function to import a section from one course to another.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class import_section extends external_api {

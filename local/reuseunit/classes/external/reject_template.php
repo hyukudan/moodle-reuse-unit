@@ -31,7 +31,7 @@ use local_reuseunit\notification_helper;
  * External function to reject a global template.
  *
  * @package    local_reuseunit
- * @copyright  2024 hyukudan
+ * @copyright  2025 hyukudan
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class reject_template extends external_api {
