@@ -254,3 +254,38 @@ $string['restoreversion'] = 'Restaurar esta versão';
 $string['confirmrestore'] = 'Tem certeza de que deseja restaurar a versão {$a}?';
 $string['versionrestored'] = 'Versão restaurada com sucesso';
 $string['compareversions'] = 'Comparar versões';
+
+// Notifications.
+$string['messageprovider:importcompleted'] = 'Notificação de importação concluída';
+$string['messageprovider:templateshared'] = 'Notificação de modelo compartilhado';
+$string['messageprovider:templateapprovalneeded'] = 'Notificação de aprovação de modelo necessária';
+$string['messageprovider:templateapproved'] = 'Notificação de modelo aprovado';
+$string['messageprovider:templaterejected'] = 'Notificação de modelo rejeitado';
+$string['messageprovider:templateupdated'] = 'Notificação de modelo atualizado';
+$string['messageprovider:scheduledimportcompleted'] = 'Notificação de importação agendada concluída';
+
+$string['notification_importcompleted_subject'] = 'Importação de seção concluída';
+$string['notification_importcompleted_message'] = 'A seção "{$a->sectionname}" foi importada com sucesso para o curso "{$a->coursename}". {$a->activities} atividades e {$a->resources} recursos foram importados.';
+
+$string['notification_templateshared_subject'] = 'Um modelo foi compartilhado com você';
+$string['notification_templateshared_message'] = 'O modelo "{$a->templatename}" foi compartilhado com você por {$a->sharername}.';
+
+$string['notification_approvalneeded_subject'] = 'Aprovação de modelo necessária';
+$string['notification_approvalneeded_message'] = 'O modelo "{$a->templatename}" enviado por {$a->submittername} requer sua aprovação para ser publicado globalmente.';
+
+$string['notification_templateapproved_subject'] = 'Seu modelo foi aprovado';
+$string['notification_templateapproved_message'] = 'Seu modelo "{$a->templatename}" foi aprovado e agora está disponível globalmente.';
+
+$string['notification_templaterejected_subject'] = 'Seu modelo foi rejeitado';
+$string['notification_templaterejected_message'] = 'Seu modelo "{$a->templatename}" foi rejeitado. Motivo: {$a->reason}';
+
+$string['notification_templateupdated_subject'] = 'Modelo atualizado';
+$string['notification_templateupdated_message'] = 'O modelo "{$a->templatename}" foi atualizado para a versão {$a->version}.';
+
+$string['notification_scheduledimport_subject'] = 'Importação agendada concluída';
+$string['notification_scheduledimport_message'] = 'A importação agendada para o curso "{$a->coursename}" foi concluída. {$a->sectionsimported} seções foram importadas. Status: {$a->status}';
+
+$string['viewcourse'] = 'Ver curso';
+$string['viewtemplates'] = 'Ver modelos';
+$string['reviewtemplate'] = 'Revisar modelo';
+$string['noreasonprovided'] = 'Nenhum motivo fornecido';

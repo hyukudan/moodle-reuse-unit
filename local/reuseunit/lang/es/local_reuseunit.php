@@ -254,3 +254,38 @@ $string['restoreversion'] = 'Restaurar esta versión';
 $string['confirmrestore'] = '¿Estás seguro de que quieres restaurar la versión {$a}?';
 $string['versionrestored'] = 'Versión restaurada correctamente';
 $string['compareversions'] = 'Comparar versiones';
+
+// Notifications.
+$string['messageprovider:importcompleted'] = 'Notificación de importación completada';
+$string['messageprovider:templateshared'] = 'Notificación de plantilla compartida';
+$string['messageprovider:templateapprovalneeded'] = 'Notificación de aprobación de plantilla requerida';
+$string['messageprovider:templateapproved'] = 'Notificación de plantilla aprobada';
+$string['messageprovider:templaterejected'] = 'Notificación de plantilla rechazada';
+$string['messageprovider:templateupdated'] = 'Notificación de plantilla actualizada';
+$string['messageprovider:scheduledimportcompleted'] = 'Notificación de importación programada completada';
+
+$string['notification_importcompleted_subject'] = 'Importación de sección completada';
+$string['notification_importcompleted_message'] = 'La sección "{$a->sectionname}" ha sido importada correctamente al curso "{$a->coursename}". Se importaron {$a->activities} actividades y {$a->resources} recursos.';
+
+$string['notification_templateshared_subject'] = 'Una plantilla ha sido compartida contigo';
+$string['notification_templateshared_message'] = 'La plantilla "{$a->templatename}" ha sido compartida contigo por {$a->sharername}.';
+
+$string['notification_approvalneeded_subject'] = 'Aprobación de plantilla requerida';
+$string['notification_approvalneeded_message'] = 'La plantilla "{$a->templatename}" enviada por {$a->submittername} requiere tu aprobación para ser publicada globalmente.';
+
+$string['notification_templateapproved_subject'] = 'Tu plantilla ha sido aprobada';
+$string['notification_templateapproved_message'] = 'Tu plantilla "{$a->templatename}" ha sido aprobada y ahora está disponible globalmente.';
+
+$string['notification_templaterejected_subject'] = 'Tu plantilla ha sido rechazada';
+$string['notification_templaterejected_message'] = 'Tu plantilla "{$a->templatename}" ha sido rechazada. Motivo: {$a->reason}';
+
+$string['notification_templateupdated_subject'] = 'Plantilla actualizada';
+$string['notification_templateupdated_message'] = 'La plantilla "{$a->templatename}" ha sido actualizada a la versión {$a->version}.';
+
+$string['notification_scheduledimport_subject'] = 'Importación programada completada';
+$string['notification_scheduledimport_message'] = 'La importación programada al curso "{$a->coursename}" ha finalizado. Se importaron {$a->sectionsimported} secciones. Estado: {$a->status}';
+
+$string['viewcourse'] = 'Ver curso';
+$string['viewtemplates'] = 'Ver plantillas';
+$string['reviewtemplate'] = 'Revisar plantilla';
+$string['noreasonprovided'] = 'No se proporcionó motivo';

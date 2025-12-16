@@ -254,3 +254,38 @@ $string['restoreversion'] = 'Restore this version';
 $string['confirmrestore'] = 'Are you sure you want to restore version {$a}?';
 $string['versionrestored'] = 'Version restored successfully';
 $string['compareversions'] = 'Compare versions';
+
+// Notifications.
+$string['messageprovider:importcompleted'] = 'Import completed notification';
+$string['messageprovider:templateshared'] = 'Template shared notification';
+$string['messageprovider:templateapprovalneeded'] = 'Template approval needed notification';
+$string['messageprovider:templateapproved'] = 'Template approved notification';
+$string['messageprovider:templaterejected'] = 'Template rejected notification';
+$string['messageprovider:templateupdated'] = 'Template updated notification';
+$string['messageprovider:scheduledimportcompleted'] = 'Scheduled import completed notification';
+
+$string['notification_importcompleted_subject'] = 'Section import completed';
+$string['notification_importcompleted_message'] = 'The section "{$a->sectionname}" has been successfully imported to the course "{$a->coursename}". {$a->activities} activities and {$a->resources} resources were imported.';
+
+$string['notification_templateshared_subject'] = 'A template has been shared with you';
+$string['notification_templateshared_message'] = 'The template "{$a->templatename}" has been shared with you by {$a->sharername}.';
+
+$string['notification_approvalneeded_subject'] = 'Template approval required';
+$string['notification_approvalneeded_message'] = 'The template "{$a->templatename}" submitted by {$a->submittername} requires your approval to be published globally.';
+
+$string['notification_templateapproved_subject'] = 'Your template has been approved';
+$string['notification_templateapproved_message'] = 'Your template "{$a->templatename}" has been approved and is now available globally.';
+
+$string['notification_templaterejected_subject'] = 'Your template has been rejected';
+$string['notification_templaterejected_message'] = 'Your template "{$a->templatename}" has been rejected. Reason: {$a->reason}';
+
+$string['notification_templateupdated_subject'] = 'Template has been updated';
+$string['notification_templateupdated_message'] = 'The template "{$a->templatename}" has been updated to version {$a->version}.';
+
+$string['notification_scheduledimport_subject'] = 'Scheduled import completed';
+$string['notification_scheduledimport_message'] = 'The scheduled import to course "{$a->coursename}" has completed. {$a->sectionsimported} sections were imported. Status: {$a->status}';
+
+$string['viewcourse'] = 'View course';
+$string['viewtemplates'] = 'View templates';
+$string['reviewtemplate'] = 'Review template';
+$string['noreasonprovided'] = 'No reason provided';
