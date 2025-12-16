@@ -231,7 +231,7 @@ class section_helper {
         // Determine which cmids to check.
         $selectedcmids = [];
         if (!empty($link->partial_import) && !empty($link->imported_cmids)) {
-            $selectedcmids = json_decode($link->imported_cmids, true) ?: [];
+            $selectedcmids = self::safe_json_decode($link->imported_cmids, []);
         }
 
         // Calculate current hash of source section.
@@ -391,7 +391,7 @@ class section_helper {
             return 0;
         }
 
-        $importedcmids = json_decode($link->imported_cmids, true) ?: [];
+        $importedcmids = self::safe_json_decode($link->imported_cmids, []);
 
         // Get all current cmids in source section.
         $modinfo = get_fast_modinfo($template->source_courseid);
@@ -589,7 +589,7 @@ class section_helper {
         // Determine which source cmids to consider (for partial imports).
         $selectedcmids = [];
         if (!empty($link->partial_import) && !empty($link->imported_cmids)) {
-            $selectedcmids = json_decode($link->imported_cmids, true) ?: [];
+            $selectedcmids = self::safe_json_decode($link->imported_cmids, []);
         }
 
         // Collect source cmids for batch loading.
@@ -967,12 +967,34 @@ class section_helper {
 
         $links = $DB->get_records('local_reuseunit_links', ['courseid' => $courseid]);
 
+        if (empty($links)) {
+            return [];
+        }
+
+        // Batch load all templates to avoid N+1 queries.
+        $templateids = array_unique(array_column($links, 'templateid'));
+        $templates = [];
+        if (!empty($templateids)) {
+            list($insql, $inparams) = $DB->get_in_or_equal($templateids, SQL_PARAMS_NAMED);
+            $templaterecs = $DB->get_records_select(
+                'local_reuseunit_templates',
+                "id $insql",
+                $inparams,
+                '',
+                'id, name, source_courseid'
+            );
+            foreach ($templaterecs as $t) {
+                $templates[$t->id] = $t;
+            }
+        }
+
         foreach ($links as &$link) {
-            $template = $DB->get_record('local_reuseunit_templates', ['id' => $link->templateid]);
+            $template = $templates[$link->templateid] ?? null;
             $link->templatename = $template ? $template->name : '';
             $link->templatesource = $template ? $template->source_courseid : 0;
 
             // Get preview to check for updates.
+            // Note: This is still expensive but unavoidable as it needs course modinfo.
             $preview = self::get_sync_preview($link->id);
             $link->has_updates = $preview['has_changes'];
             $link->has_conflicts = $preview['has_conflicts'];

@@ -102,17 +102,61 @@ class check_updates extends \core\task\scheduled_task {
         require_once($CFG->dirroot . '/local/reuseunit/classes/external/sync_section.php');
 
         try {
-            // Set admin user for the operation.
-            $admin = get_admin();
-            \core\session\manager::set_user($admin);
+            // Get the link owner user.
+            $user = $DB->get_record('user', ['id' => $link->userid]);
+            if (!$user || $user->deleted || $user->suspended) {
+                mtrace("    Auto-sync skipped: Link owner unavailable or inactive");
+                return;
+            }
 
-            // Determine if we should include new items.
-            $includenew = !empty($link->partial_import) ? false : true;
+            // Get the course for capability check.
+            $course = $DB->get_record('course', ['id' => $link->courseid]);
+            if (!$course) {
+                mtrace("    Auto-sync skipped: Course not found");
+                return;
+            }
+
+            // Get the template for source course capability check.
+            $template = $DB->get_record('local_reuseunit_templates', ['id' => $link->templateid]);
+            if (!$template) {
+                mtrace("    Auto-sync skipped: Template not found");
+                return;
+            }
+
+            // Verify user has required capabilities in destination course.
+            $destcontext = \context_course::instance($course->id, IGNORE_MISSING);
+            if (!$destcontext || !has_capability('local/reuseunit:import', $destcontext, $user)) {
+                mtrace("    Auto-sync skipped: User lacks import capability in destination course");
+                return;
+            }
+
+            // Verify user has required capabilities in source course (if it still exists).
+            if ($template->source_courseid) {
+                $sourcecontext = \context_course::instance($template->source_courseid, IGNORE_MISSING);
+                if (!$sourcecontext || !has_capability('local/reuseunit:export', $sourcecontext, $user)) {
+                    mtrace("    Auto-sync skipped: User lacks export capability in source course");
+                    return;
+                }
+            }
+
+            // Set user context for the operation (using link owner, not admin).
+            \core\session\manager::set_user($user);
+
+            // Determine sync mode based on granular autosync settings.
+            $addnew = !empty($link->autosync_add);
+            $updateexisting = !empty($link->autosync_update);
+            $removeold = !empty($link->autosync_remove);
+
+            // Only proceed if at least one action is enabled.
+            if (!$addnew && !$updateexisting && !$removeold) {
+                mtrace("    Auto-sync skipped: No sync actions enabled");
+                return;
+            }
 
             $result = \local_reuseunit\external\sync_section::execute(
                 $link->id,
-                'replace',
-                $includenew
+                'selective',
+                $addnew
             );
 
             if ($result['success']) {
@@ -132,6 +176,7 @@ class check_updates extends \core\task\scheduled_task {
             }
         } catch (\Exception $e) {
             mtrace("    Auto-sync error: " . $e->getMessage());
+            debugging('Auto-sync exception for link ' . $link->id . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 

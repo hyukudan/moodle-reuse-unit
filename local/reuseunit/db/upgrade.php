@@ -352,5 +352,26 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025121607, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2025121608) {
+        // Add missing indexes for performance.
+
+        // Add userid index to links table.
+        $table = new xmldb_table('local_reuseunit_links');
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add userid index to sync_history table.
+        $table = new xmldb_table('local_reuseunit_sync_history');
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121608, 'local', 'reuseunit');
+    }
+
     return true;
 }

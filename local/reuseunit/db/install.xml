@@ -141,6 +141,7 @@
       <INDEXES>
         <INDEX NAME="courseid_sectionid" UNIQUE="true" FIELDS="courseid, sectionid"/>
         <INDEX NAME="templateid_autosync" UNIQUE="false" FIELDS="templateid, autosync"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
 
@@ -193,6 +194,7 @@
       <INDEXES>
         <INDEX NAME="linkid_timecreated" UNIQUE="false" FIELDS="linkid, timecreated"/>
         <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>
