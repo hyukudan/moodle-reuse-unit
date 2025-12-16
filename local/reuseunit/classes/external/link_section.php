@@ -46,6 +46,8 @@ class link_section extends external_api {
             'sectionid' => new external_value(PARAM_INT, 'Section ID'),
             'templateid' => new external_value(PARAM_INT, 'Template ID'),
             'autosync' => new external_value(PARAM_BOOL, 'Enable auto-sync', VALUE_DEFAULT, false),
+            'importedcmids' => new external_value(PARAM_TEXT, 'JSON array of imported cmids', VALUE_DEFAULT, ''),
+            'partialimport' => new external_value(PARAM_BOOL, 'Whether this was a partial import', VALUE_DEFAULT, false),
         ]);
     }
 
@@ -56,9 +58,18 @@ class link_section extends external_api {
      * @param int $sectionid Section ID
      * @param int $templateid Template ID
      * @param bool $autosync Enable auto-sync
+     * @param string $importedcmids JSON array of imported cmids
+     * @param bool $partialimport Whether this was a partial import
      * @return array Result
      */
-    public static function execute(int $courseid, int $sectionid, int $templateid, bool $autosync = false): array {
+    public static function execute(
+        int $courseid,
+        int $sectionid,
+        int $templateid,
+        bool $autosync = false,
+        string $importedcmids = '',
+        bool $partialimport = false
+    ): array {
         global $DB, $USER;
 
         // Validate parameters.
@@ -67,6 +78,8 @@ class link_section extends external_api {
             'sectionid' => $sectionid,
             'templateid' => $templateid,
             'autosync' => $autosync,
+            'importedcmids' => $importedcmids,
+            'partialimport' => $partialimport,
         ]);
 
         // Check course access.
@@ -95,6 +108,11 @@ class link_section extends external_api {
             $existing->autosync = $params['autosync'] ? 1 : 0;
             $existing->template_version = $template->current_version ?? 1;
             $existing->timemodified = time();
+            // Update partial import data if provided.
+            if (!empty($params['importedcmids'])) {
+                $existing->imported_cmids = $params['importedcmids'];
+                $existing->partial_import = $params['partialimport'] ? 1 : 0;
+            }
             $DB->update_record('local_reuseunit_links', $existing);
             $linkid = $existing->id;
         } else {
@@ -109,6 +127,9 @@ class link_section extends external_api {
             $link->last_synced = time();
             $link->timecreated = time();
             $link->timemodified = time();
+            // Store partial import data.
+            $link->imported_cmids = $params['importedcmids'] ?: null;
+            $link->partial_import = $params['partialimport'] ? 1 : 0;
             $linkid = $DB->insert_record('local_reuseunit_links', $link);
         }
 

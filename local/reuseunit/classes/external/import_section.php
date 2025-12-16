@@ -53,6 +53,7 @@ class import_section extends external_api {
             'destcourseid' => new external_value(PARAM_INT, 'Destination course ID'),
             'position' => new external_value(PARAM_TEXT, 'Position: start, end, or after:X', VALUE_DEFAULT, 'end'),
             'newsectionname' => new external_value(PARAM_TEXT, 'New section name (optional)', VALUE_DEFAULT, ''),
+            'selectedcmids' => new external_value(PARAM_TEXT, 'JSON array of selected cmids for partial import', VALUE_DEFAULT, ''),
             'resetdates' => new external_value(PARAM_BOOL, 'Reset activity dates', VALUE_DEFAULT, true),
             'includerestrictions' => new external_value(PARAM_BOOL, 'Include access restrictions', VALUE_DEFAULT, false),
             'includegradebook' => new external_value(PARAM_BOOL, 'Include gradebook structure', VALUE_DEFAULT, false),
@@ -67,6 +68,7 @@ class import_section extends external_api {
      * @param int $destcourseid Destination course ID
      * @param string $position Position to insert
      * @param string $newsectionname New section name
+     * @param string $selectedcmids JSON array of selected cmids
      * @param bool $resetdates Whether to reset dates
      * @param bool $includerestrictions Whether to include restrictions
      * @param bool $includegradebook Whether to include gradebook
@@ -78,6 +80,7 @@ class import_section extends external_api {
         int $destcourseid,
         string $position = 'end',
         string $newsectionname = '',
+        string $selectedcmids = '',
         bool $resetdates = true,
         bool $includerestrictions = false,
         bool $includegradebook = false
@@ -91,10 +94,21 @@ class import_section extends external_api {
             'destcourseid' => $destcourseid,
             'position' => $position,
             'newsectionname' => $newsectionname,
+            'selectedcmids' => $selectedcmids,
             'resetdates' => $resetdates,
             'includerestrictions' => $includerestrictions,
             'includegradebook' => $includegradebook,
         ]);
+
+        // Parse selected cmids for partial import.
+        $selectedcmidsarray = [];
+        $ispartialimport = false;
+        if (!empty($params['selectedcmids'])) {
+            $selectedcmidsarray = json_decode($params['selectedcmids'], true);
+            if (is_array($selectedcmidsarray) && count($selectedcmidsarray) > 0) {
+                $ispartialimport = true;
+            }
+        }
 
         // Get source course and context.
         $sourcecourse = $DB->get_record('course', ['id' => $params['sourcecourseid']], '*', MUST_EXIST);
@@ -137,6 +151,8 @@ class import_section extends external_api {
             'includerestrictions' => $params['includerestrictions'],
             'includegradebook' => $params['includegradebook'],
             'newsectionname' => $params['newsectionname'],
+            'partial_import' => $ispartialimport,
+            'selected_cmids' => $selectedcmidsarray,
         ]);
         $history->status = 'running';
         $history->timecreated = time();
@@ -152,7 +168,8 @@ class import_section extends external_api {
                 $params['newsectionname'],
                 $params['resetdates'],
                 $params['includerestrictions'],
-                $params['includegradebook']
+                $params['includegradebook'],
+                $selectedcmidsarray
             );
 
             // Update history.
@@ -171,6 +188,7 @@ class import_section extends external_api {
                 'sectionnum' => $result['sectionnum'],
                 'activities' => $result['activities'],
                 'resources' => $result['resources'],
+                'partial_import' => $ispartialimport,
                 'message' => get_string('importcompleted', 'local_reuseunit'),
                 'courseurl' => (new \moodle_url('/course/view.php', [
                     'id' => $destcourse->id,
@@ -201,6 +219,7 @@ class import_section extends external_api {
      * @param bool $resetdates Reset dates
      * @param bool $includerestrictions Include restrictions
      * @param bool $includegradebook Include gradebook
+     * @param array $selectedcmids Array of selected cmids for partial import
      * @return array Result with sectionid, activities, resources
      */
     private static function do_import(
@@ -211,9 +230,13 @@ class import_section extends external_api {
         $newsectionname,
         $resetdates,
         $includerestrictions,
-        $includegradebook
+        $includegradebook,
+        array $selectedcmids = []
     ): array {
         global $USER, $DB, $CFG;
+
+        // Determine if this is a partial import.
+        $ispartialimport = !empty($selectedcmids);
 
         // Use Moodle's import controller (which is a specialized backup+restore).
         // First, we need to create a backup of just the section.
@@ -261,6 +284,21 @@ class import_section extends external_api {
                     if (preg_match('/section_(\d+)_included/', $name, $matches)) {
                         $sectionnum = (int)$matches[1];
                         $setting->set_value($sectionnum == $sourcesectionnum ? 1 : 0);
+                    }
+                }
+            }
+
+            // For partial import, exclude activities not in the selection.
+            if ($ispartialimport && $task instanceof \backup_activity_task) {
+                $cmid = $task->get_moduleid();
+                if (!in_array($cmid, $selectedcmids)) {
+                    // Exclude this activity from backup.
+                    $tasksettings = $task->get_settings();
+                    foreach ($tasksettings as $setting) {
+                        $name = $setting->get_name();
+                        if (preg_match('/_included$/', $name) && $setting->get_status() == \backup_setting::NOT_LOCKED) {
+                            $setting->set_value(0);
+                        }
                     }
                 }
             }
@@ -369,6 +407,7 @@ class import_section extends external_api {
             'sectionnum' => new external_value(PARAM_INT, 'New section number'),
             'activities' => new external_value(PARAM_INT, 'Number of activities imported'),
             'resources' => new external_value(PARAM_INT, 'Number of resources imported'),
+            'partial_import' => new external_value(PARAM_BOOL, 'Whether this was a partial import'),
             'message' => new external_value(PARAM_TEXT, 'Result message'),
             'courseurl' => new external_value(PARAM_URL, 'URL to the course with imported section'),
         ]);

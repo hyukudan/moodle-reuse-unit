@@ -47,6 +47,8 @@ class ImportWizard {
         this.selectedActivityTypes = [];
         this.batchMode = false;
         this.importQueue = [];
+        this.selectedCmids = []; // For granular content selection
+        this.allCmids = []; // All available cmids in preview
 
         this.init();
     }
@@ -397,8 +399,141 @@ class ImportWizard {
             preview.innerHTML = html;
 
             this.previewData = content;
+
+            // Initialize granular selection.
+            this.initContentSelection();
         } catch (error) {
             Notification.exception(error);
+        }
+    }
+
+    /**
+     * Initialize content selection for granular import.
+     */
+    initContentSelection() {
+        const preview = document.getElementById('section-preview');
+        if (!preview) {
+            return;
+        }
+
+        // Collect all cmids from content checkboxes.
+        this.allCmids = [];
+        this.selectedCmids = [];
+
+        preview.querySelectorAll('.content-checkbox').forEach(checkbox => {
+            const cmid = parseInt(checkbox.value);
+            this.allCmids.push(cmid);
+            if (checkbox.checked) {
+                this.selectedCmids.push(cmid);
+            }
+        });
+
+        // Bind events for content checkboxes.
+        preview.querySelectorAll('.content-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => this.handleContentCheckboxChange(checkbox));
+        });
+
+        // Bind select all checkbox.
+        const selectAll = preview.querySelector('#select-all-content');
+        if (selectAll) {
+            selectAll.addEventListener('change', () => this.handleSelectAllChange(selectAll.checked));
+        }
+
+        // Update initial count.
+        this.updateSelectionCount();
+    }
+
+    /**
+     * Handle individual content checkbox change.
+     *
+     * @param {HTMLInputElement} checkbox - The checkbox element
+     */
+    handleContentCheckboxChange(checkbox) {
+        const cmid = parseInt(checkbox.value);
+
+        if (checkbox.checked) {
+            if (!this.selectedCmids.includes(cmid)) {
+                this.selectedCmids.push(cmid);
+            }
+        } else {
+            this.selectedCmids = this.selectedCmids.filter(id => id !== cmid);
+        }
+
+        this.updateSelectionCount();
+        this.updateSelectAllState();
+        this.updatePartialImportNotice();
+    }
+
+    /**
+     * Handle select all checkbox change.
+     *
+     * @param {boolean} checked - Whether select all is checked
+     */
+    handleSelectAllChange(checked) {
+        const preview = document.getElementById('section-preview');
+        if (!preview) {
+            return;
+        }
+
+        preview.querySelectorAll('.content-checkbox').forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+
+        if (checked) {
+            this.selectedCmids = [...this.allCmids];
+        } else {
+            this.selectedCmids = [];
+        }
+
+        this.updateSelectionCount();
+        this.updatePartialImportNotice();
+    }
+
+    /**
+     * Update the selection count display.
+     */
+    updateSelectionCount() {
+        const countEl = document.getElementById('selected-count');
+        if (countEl) {
+            countEl.textContent = this.selectedCmids.length;
+        }
+
+        // Disable import button if nothing selected.
+        const importBtn = document.getElementById('btn-import');
+        if (importBtn) {
+            importBtn.disabled = this.selectedCmids.length === 0;
+        }
+    }
+
+    /**
+     * Update the select all checkbox state based on individual selections.
+     */
+    updateSelectAllState() {
+        const selectAll = document.querySelector('#select-all-content');
+        if (!selectAll) {
+            return;
+        }
+
+        if (this.selectedCmids.length === 0) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        } else if (this.selectedCmids.length === this.allCmids.length) {
+            selectAll.checked = true;
+            selectAll.indeterminate = false;
+        } else {
+            selectAll.checked = false;
+            selectAll.indeterminate = true;
+        }
+    }
+
+    /**
+     * Update partial import notice visibility.
+     */
+    updatePartialImportNotice() {
+        const notice = document.getElementById('partial-import-notice');
+        if (notice) {
+            const isPartial = this.selectedCmids.length > 0 && this.selectedCmids.length < this.allCmids.length;
+            notice.style.display = isPartial ? 'inline' : 'none';
         }
     }
 
@@ -411,9 +546,15 @@ class ImportWizard {
             return;
         }
 
+        const isPartial = this.selectedCmids.length < this.allCmids.length;
+        const selectionInfo = isPartial
+            ? `<span class="badge badge-warning">${this.selectedCmids.length}/${this.allCmids.length} elementos seleccionados</span>`
+            : `<span class="badge badge-success">Todos los elementos</span>`;
+
         list.innerHTML = `
             <li><strong>${this.previewData.name}</strong></li>
             <li>${this.previewData.activities} actividades, ${this.previewData.resources} recursos</li>
+            <li>${selectionInfo}</li>
         `;
     }
 
@@ -433,6 +574,10 @@ class ImportWizard {
         const position = document.querySelector('input[name="position"]:checked')?.value ?? 'end';
         const newName = document.getElementById('new-section-name')?.value ?? '';
 
+        // Determine if this is a partial import.
+        const isPartial = this.selectedCmids.length < this.allCmids.length;
+        const selectedCmidsJson = isPartial ? JSON.stringify(this.selectedCmids) : '';
+
         try {
             const result = await Ajax.call([{
                 methodname: 'local_reuseunit_import_section',
@@ -442,14 +587,16 @@ class ImportWizard {
                     destcourseid: this.destCourseid,
                     position,
                     newsectionname: newName,
+                    selectedcmids: selectedCmidsJson,
                     ...options
                 }
             }])[0];
 
             if (result.success) {
                 document.getElementById('btn-view-section').href = result.courseurl;
+                const partialNote = result.partial_import ? ' (importación parcial)' : '';
                 document.getElementById('result-stats').innerHTML = `
-                    ${result.activities} actividades, ${result.resources} recursos importados
+                    ${result.activities} actividades, ${result.resources} recursos importados${partialNote}
                 `;
                 this.goToStep('result');
             } else {

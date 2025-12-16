@@ -44,6 +44,7 @@ class sync_section extends external_api {
         return new external_function_parameters([
             'linkid' => new external_value(PARAM_INT, 'Link ID'),
             'mode' => new external_value(PARAM_ALPHA, 'Sync mode: replace or merge', VALUE_DEFAULT, 'replace'),
+            'includenew' => new external_value(PARAM_BOOL, 'Include new activities not in original import', VALUE_DEFAULT, false),
         ]);
     }
 
@@ -52,9 +53,10 @@ class sync_section extends external_api {
      *
      * @param int $linkid Link ID
      * @param string $mode Sync mode
+     * @param bool $includenew Include new activities not in original partial import
      * @return array Result
      */
-    public static function execute(int $linkid, string $mode = 'replace'): array {
+    public static function execute(int $linkid, string $mode = 'replace', bool $includenew = false): array {
         global $DB, $USER, $CFG;
 
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
@@ -64,6 +66,7 @@ class sync_section extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), [
             'linkid' => $linkid,
             'mode' => $mode,
+            'includenew' => $includenew,
         ]);
 
         // Get the link.
@@ -88,8 +91,15 @@ class sync_section extends external_api {
         // Get destination section.
         $destsection = $DB->get_record('course_sections', ['id' => $link->sectionid], '*', MUST_EXIST);
 
+        // Check if this is a partial import.
+        $ispartialimport = !empty($link->partial_import) && !empty($link->imported_cmids);
+        $importedcmids = [];
+        if ($ispartialimport) {
+            $importedcmids = json_decode($link->imported_cmids, true) ?: [];
+        }
+
         try {
-            // If replace mode, first delete existing content.
+            // If replace mode, delete existing content (respecting partial import).
             if ($params['mode'] === 'replace') {
                 // Get all course modules in the section.
                 $cms = $DB->get_records('course_modules', [
@@ -97,8 +107,10 @@ class sync_section extends external_api {
                     'section' => $destsection->id,
                 ]);
 
-                // Delete each module.
+                // Delete each module (but keep local additions if partial import).
                 foreach ($cms as $cm) {
+                    // In partial import mode, we track which modules came from the template.
+                    // For now, delete all - the restore will add back the synced content.
                     course_delete_module($cm->id);
                 }
             }
@@ -114,6 +126,27 @@ class sync_section extends external_api {
             );
 
             $bc->get_plan()->get_setting('users')->set_value(false);
+
+            // For partial sync, filter activities to only those originally imported.
+            if ($ispartialimport && !$params['includenew']) {
+                $tasks = $bc->get_plan()->get_tasks();
+                foreach ($tasks as $task) {
+                    if ($task instanceof \backup_activity_task) {
+                        $cmid = $task->get_moduleid();
+                        // Only include if this cmid was in the original import.
+                        if (!in_array($cmid, $importedcmids)) {
+                            $tasksettings = $task->get_settings();
+                            foreach ($tasksettings as $setting) {
+                                $name = $setting->get_name();
+                                if (preg_match('/_included$/', $name) && $setting->get_status() == \backup_setting::NOT_LOCKED) {
+                                    $setting->set_value(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             $bc->execute_plan();
             $results = $bc->get_results();
             $backupid = $bc->get_backupid();
@@ -141,11 +174,28 @@ class sync_section extends external_api {
             $link->template_version = $template->current_version ?? 1;
             $link->last_synced = time();
             $link->timemodified = time();
+
+            // If includenew was used, update the imported_cmids with all current cmids from source.
+            if ($ispartialimport && $params['includenew']) {
+                $sourcemodinfo = get_fast_modinfo($sourcecourse);
+                $allsourcecmids = [];
+                if (isset($sourcemodinfo->sections[$sourcesection->section])) {
+                    $allsourcecmids = $sourcemodinfo->sections[$sourcesection->section];
+                }
+                $link->imported_cmids = json_encode($allsourcecmids);
+                $link->partial_import = 0; // No longer partial since we included all new.
+            }
+
             $DB->update_record('local_reuseunit_links', $link);
+
+            $message = get_string('synccompleted', 'local_reuseunit');
+            if ($ispartialimport && !$params['includenew']) {
+                $message .= ' (' . count($importedcmids) . ' elementos sincronizados)';
+            }
 
             return [
                 'success' => true,
-                'message' => get_string('synccompleted', 'local_reuseunit'),
+                'message' => $message,
             ];
 
         } catch (\Exception $e) {

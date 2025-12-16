@@ -483,3 +483,22 @@ $string['autocleanup'] = 'Auto-cleanup old data';
 $string['autocleanup_desc'] = 'Automatically clean up old scheduled imports and history records.';
 $string['cleanupage'] = 'Cleanup age (days)';
 $string['cleanupage_desc'] = 'Age in days after which completed scheduled imports are cleaned up.';
+
+// Granular import.
+$string['selectall'] = 'Select all';
+$string['selected'] = 'selected';
+$string['partialimport'] = 'Partial import';
+$string['partialimport_desc'] = 'Only selected items will be imported and synced.';
+$string['granularimport'] = 'Granular import';
+$string['granularimport_desc'] = 'Select specific activities and resources to import.';
+$string['selectactivities'] = 'Select activities';
+$string['deselectall'] = 'Deselect all';
+$string['selecteditems'] = '{$a} items selected';
+$string['allitemsselected'] = 'All items selected';
+$string['noitemsselected'] = 'No items selected';
+$string['includenew'] = 'Include new activities';
+$string['includenew_desc'] = 'Also import new activities that were added to the template since your last import.';
+$string['synconlyimported'] = 'Only sync originally imported items';
+$string['newitemsavailable'] = '{$a} new items available in template';
+$string['partialsynccompleted'] = 'Partial sync completed ({$a} items)';
+$string['importselection'] = 'Import selection';

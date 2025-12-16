@@ -10,6 +10,7 @@
     * resources - Number of resources
     * contents - Array of content items
     * isempty - Whether section is empty
+    * allowgranular - Whether to show selection checkboxes
 }}
 <div class="reuseunit-section-preview">
     <h6 class="border-bottom pb-2 mb-3">
@@ -27,19 +28,41 @@
     {{/isempty}}
 
     {{^isempty}}
+    {{! Granular selection controls }}
+    <div class="reuseunit-selection-controls mb-3 p-2 bg-light rounded d-flex justify-content-between align-items-center">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="select-all-content" checked>
+            <label class="custom-control-label" for="select-all-content">
+                <strong>{{#str}}selectall, local_reuseunit{{/str}}</strong>
+            </label>
+        </div>
+        <span class="badge badge-primary" id="selection-count">
+            <span id="selected-count">{{totalitems}}</span> / {{totalitems}} {{#str}}selected, local_reuseunit{{/str}}
+        </span>
+    </div>
+
     <ul class="reuseunit-content-list list-unstyled mb-0">
         {{#contents}}
-        <li class="content-item d-flex align-items-center py-1 {{^visible}}text-muted{{/visible}}" style="padding-left: {{indent}}rem;">
+        <li class="content-item d-flex align-items-center py-1 {{^visible}}text-muted{{/visible}}" style="padding-left: {{indent}}rem;" data-cmid="{{cmid}}">
+            <div class="custom-control custom-checkbox mr-2">
+                <input type="checkbox" class="custom-control-input content-checkbox" id="content-{{cmid}}" value="{{cmid}}" checked>
+                <label class="custom-control-label" for="content-{{cmid}}"></label>
+            </div>
             <img src="{{iconurl}}" alt="" class="icon mr-2" style="width: 16px; height: 16px;">
-            <span class="content-name">{{name}}</span>
-            <span class="badge badge-{{#type}}{{.}}{{/type}} ml-auto">{{modplural}}</span>
+            <span class="content-name flex-grow-1">{{name}}</span>
+            <span class="badge badge-secondary ml-2">{{modname}}</span>
         </li>
         {{/contents}}
     </ul>
 
-    <div class="section-stats mt-3 pt-2 border-top text-muted small">
-        <span class="mr-3">{{#pix}}i/grades, core{{/pix}} {{activities}} {{#str}}activities, local_reuseunit{{/str}}</span>
-        <span>{{#pix}}i/files, core{{/pix}} {{resources}} {{#str}}resources, local_reuseunit{{/str}}</span>
+    <div class="section-stats mt-3 pt-2 border-top text-muted small d-flex justify-content-between">
+        <span>
+            <span class="mr-3">{{#pix}}i/grades, core{{/pix}} {{activities}} {{#str}}activities, local_reuseunit{{/str}}</span>
+            <span>{{#pix}}i/files, core{{/pix}} {{resources}} {{#str}}resources, local_reuseunit{{/str}}</span>
+        </span>
+        <span class="text-info" id="partial-import-notice" style="display: none;">
+            {{#pix}}i/warning, core{{/pix}} {{#str}}partialimport, local_reuseunit{{/str}}
+        </span>
     </div>
     {{/isempty}}
 </div>

@@ -483,3 +483,22 @@ $string['autocleanup'] = 'Limpieza automática de datos antiguos';
 $string['autocleanup_desc'] = 'Limpiar automáticamente importaciones programadas antiguas y registros del historial.';
 $string['cleanupage'] = 'Antigüedad de limpieza (días)';
 $string['cleanupage_desc'] = 'Antigüedad en días después de la cual se limpian las importaciones programadas completadas.';
+
+// Importación granular.
+$string['selectall'] = 'Seleccionar todo';
+$string['selected'] = 'seleccionados';
+$string['partialimport'] = 'Importación parcial';
+$string['partialimport_desc'] = 'Solo se importarán y sincronizarán los elementos seleccionados.';
+$string['granularimport'] = 'Importación granular';
+$string['granularimport_desc'] = 'Selecciona actividades y recursos específicos para importar.';
+$string['selectactivities'] = 'Seleccionar actividades';
+$string['deselectall'] = 'Deseleccionar todo';
+$string['selecteditems'] = '{$a} elementos seleccionados';
+$string['allitemsselected'] = 'Todos los elementos seleccionados';
+$string['noitemsselected'] = 'Ningún elemento seleccionado';
+$string['includenew'] = 'Incluir nuevas actividades';
+$string['includenew_desc'] = 'También importar nuevas actividades que se agregaron a la plantilla desde tu última importación.';
+$string['synconlyimported'] = 'Solo sincronizar elementos originalmente importados';
+$string['newitemsavailable'] = '{$a} nuevos elementos disponibles en la plantilla';
+$string['partialsynccompleted'] = 'Sincronización parcial completada ({$a} elementos)';
+$string['importselection'] = 'Importar selección';

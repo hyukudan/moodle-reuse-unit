@@ -25,6 +25,7 @@ A Moodle 4.x+ local plugin that enables teachers to reuse course sections/units 
 10. **Section synchronization** - Keep sections linked to templates for updates
 11. **Scheduled imports** - Schedule imports for later execution
 12. **Diff comparison** - Compare sections and template versions
+13. **Granular import** - Select specific activities/resources to import
 
 ## Requirements
 
@@ -106,6 +107,14 @@ Navigate to **Site administration > Plugins > Local plugins > Reuse Unit** to co
 1. Link a section to a template when importing
 2. Receive notifications when the template is updated
 3. Click "Sync now" to update the section content
+
+### Granular Import (Partial Import)
+1. Open the import wizard and select a section
+2. In the preview step, use checkboxes to select specific activities/resources
+3. Use "Select all" to toggle all items at once
+4. The selection count shows how many items are selected
+5. When linked to a template, synchronization respects the original selection
+6. Option to include new activities added to the template since last import
 
 ## CLI Commands
 
@@ -218,6 +227,13 @@ The plugin includes a proper uninstall script that:
 Database tables are automatically dropped by Moodle during uninstallation.
 
 ## Changelog
+
+### Version 0.6.0
+- Added granular import feature - select specific activities/resources to import
+- Partial import tracking for synchronization
+- New "Include new activities" option during sync for partial imports
+- Database schema updated with imported_cmids and partial_import fields
+- Updated wizard UI with selection checkboxes and count display
 
 ### Version 0.5.2
 - Added Behat integration tests for synchronization and scheduled imports

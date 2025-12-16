@@ -190,5 +190,25 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024121608, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2025121602) {
+        // Add imported_cmids field to local_reuseunit_links for granular import tracking.
+        $table = new xmldb_table('local_reuseunit_links');
+
+        // Add imported_cmids field - stores JSON array of imported course module IDs.
+        $field = new xmldb_field('imported_cmids', XMLDB_TYPE_TEXT, null, null, null, null, null, 'timemodified');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add partial_import field - indicates if only some activities were imported.
+        $field = new xmldb_field('partial_import', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'imported_cmids');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121602, 'local', 'reuseunit');
+    }
+
     return true;
 }
