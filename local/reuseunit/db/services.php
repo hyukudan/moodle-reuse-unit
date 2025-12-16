@@ -255,6 +255,23 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Diff comparison services.
+    'local_reuseunit_compare_sections' => [
+        'classname' => 'local_reuseunit\external\compare_sections',
+        'description' => 'Compare two sections and show differences',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_compare_versions' => [
+        'classname' => 'local_reuseunit\external\compare_versions',
+        'description' => 'Compare two template versions',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -288,6 +305,8 @@ $services = [
             'local_reuseunit_schedule_import',
             'local_reuseunit_get_scheduled_imports',
             'local_reuseunit_cancel_scheduled_import',
+            'local_reuseunit_compare_sections',
+            'local_reuseunit_compare_versions',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

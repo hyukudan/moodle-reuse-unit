@@ -391,3 +391,27 @@ $string['viewdetails'] = 'View details';
 $string['error_pasttime'] = 'Scheduled time cannot be in the past';
 $string['error_cannotcancel'] = 'This scheduled import cannot be cancelled';
 $string['task_scheduledimport'] = 'Process scheduled section import';
+
+// Diff comparison.
+$string['compare'] = 'Compare';
+$string['comparesections'] = 'Compare sections';
+$string['compareversions'] = 'Compare versions';
+$string['comparison'] = 'Comparison';
+$string['differences'] = 'Differences';
+$string['nodifferences'] = 'No differences found';
+$string['added'] = 'Added';
+$string['removed'] = 'Removed';
+$string['modified'] = 'Modified';
+$string['unchanged'] = 'Unchanged';
+$string['itemsadded'] = '{$a} items will be added';
+$string['itemsremoved'] = '{$a} items will be removed';
+$string['itemsmodified'] = '{$a} items modified';
+$string['itemsunchanged'] = '{$a} items unchanged';
+$string['previewchanges'] = 'Preview changes';
+$string['selectversions'] = 'Select versions to compare';
+$string['olderversion'] = 'Older version';
+$string['newerversion'] = 'Newer version';
+$string['changesummary'] = 'Change summary';
+$string['increased'] = 'Increased';
+$string['decreased'] = 'Decreased';
+$string['changed'] = 'Changed';

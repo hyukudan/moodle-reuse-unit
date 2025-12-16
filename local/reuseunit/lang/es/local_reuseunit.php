@@ -391,3 +391,27 @@ $string['viewdetails'] = 'Ver detalles';
 $string['error_pasttime'] = 'La hora programada no puede ser en el pasado';
 $string['error_cannotcancel'] = 'Esta importación programada no se puede cancelar';
 $string['task_scheduledimport'] = 'Procesar importación de sección programada';
+
+// Diff comparison.
+$string['compare'] = 'Comparar';
+$string['comparesections'] = 'Comparar secciones';
+$string['compareversions'] = 'Comparar versiones';
+$string['comparison'] = 'Comparación';
+$string['differences'] = 'Diferencias';
+$string['nodifferences'] = 'No se encontraron diferencias';
+$string['added'] = 'Añadido';
+$string['removed'] = 'Eliminado';
+$string['modified'] = 'Modificado';
+$string['unchanged'] = 'Sin cambios';
+$string['itemsadded'] = '{$a} elementos serán añadidos';
+$string['itemsremoved'] = '{$a} elementos serán eliminados';
+$string['itemsmodified'] = '{$a} elementos modificados';
+$string['itemsunchanged'] = '{$a} elementos sin cambios';
+$string['previewchanges'] = 'Vista previa de cambios';
+$string['selectversions'] = 'Seleccionar versiones a comparar';
+$string['olderversion'] = 'Versión anterior';
+$string['newerversion'] = 'Versión más reciente';
+$string['changesummary'] = 'Resumen de cambios';
+$string['increased'] = 'Aumentado';
+$string['decreased'] = 'Disminuido';
+$string['changed'] = 'Cambiado';

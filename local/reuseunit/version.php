@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_reuseunit';
-$plugin->version = 2024121608;
+$plugin->version = 2024121609;
 $plugin->requires = 2022112800; // Moodle 4.0+
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->release = '0.4.0';
