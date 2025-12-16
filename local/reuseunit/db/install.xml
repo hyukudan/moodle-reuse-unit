@@ -84,5 +84,31 @@
         <INDEX NAME="name" UNIQUE="false" FIELDS="name"/>
       </INDEXES>
     </TABLE>
+
+    <TABLE NAME="local_reuseunit_versions" COMMENT="Template version history">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Template ID"/>
+        <FIELD NAME="version" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" COMMENT="Version number"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who created this version"/>
+        <FIELD NAME="changelog" TYPE="text" NOTNULL="false" COMMENT="Description of changes"/>
+        <FIELD NAME="source_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source course ID for this version"/>
+        <FIELD NAME="source_sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source section ID for this version"/>
+        <FIELD NAME="activities_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of activities"/>
+        <FIELD NAME="resources_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of resources"/>
+        <FIELD NAME="fileitemid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="File item ID for backup file"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" COMMENT="Hash of backup content"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="templateid" TYPE="foreign" FIELDS="templateid" REFTABLE="local_reuseunit_templates" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="templateid_version" UNIQUE="true" FIELDS="templateid, version"/>
+        <INDEX NAME="templateid_timecreated" UNIQUE="false" FIELDS="templateid, timecreated"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

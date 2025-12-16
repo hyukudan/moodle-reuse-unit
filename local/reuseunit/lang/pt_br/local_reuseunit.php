@@ -237,3 +237,20 @@ $string['importqueue'] = 'Fila de importação';
 $string['queueitems'] = '{$a} itens na fila';
 $string['error_toomanyimports'] = 'Máximo de {$a} seções podem ser importadas de uma vez';
 $string['processingitem'] = 'Processando {$a->current} de {$a->total}...';
+
+// Template versioning.
+$string['versions'] = 'Versões';
+$string['versionhistory'] = 'Histórico de versões';
+$string['currentversion'] = 'Versão atual';
+$string['version'] = 'Versão {$a}';
+$string['versioncreated'] = 'Versão {$a} criada com sucesso';
+$string['createversion'] = 'Criar nova versão';
+$string['updatetemplate'] = 'Atualizar modelo';
+$string['changelog'] = 'Descrição da alteração';
+$string['changelog_help'] = 'Descreva o que mudou nesta versão';
+$string['noversions'] = 'Nenhum histórico de versões disponível';
+$string['viewversions'] = 'Ver versões';
+$string['restoreversion'] = 'Restaurar esta versão';
+$string['confirmrestore'] = 'Tem certeza de que deseja restaurar a versão {$a}?';
+$string['versionrestored'] = 'Versão restaurada com sucesso';
+$string['compareversions'] = 'Comparar versões';

@@ -138,6 +138,23 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Template versioning services.
+    'local_reuseunit_get_template_versions' => [
+        'classname' => 'local_reuseunit\external\get_template_versions',
+        'description' => 'Get version history for a template',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_update_template_version' => [
+        'classname' => 'local_reuseunit\external\update_template_version',
+        'description' => 'Create a new version of a template',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -157,6 +174,8 @@ $services = [
             'local_reuseunit_export_section',
             'local_reuseunit_search_sections',
             'local_reuseunit_batch_import',
+            'local_reuseunit_get_template_versions',
+            'local_reuseunit_update_template_version',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

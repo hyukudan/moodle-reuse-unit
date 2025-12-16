@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-12-16
+
+### Added
+- **Template Versioning**: Track and manage template versions
+- New database table for version history (local_reuseunit_versions)
+- Get version history API (get_template_versions)
+- Create new version API (update_template_version)
+- Version changelog support
+- View version history in template management
+
+### Technical
+- Database upgrade script (upgrade.php)
+- Added current_version field to templates table
+
 ## [0.3.0] - 2024-12-16
 
 ### Added

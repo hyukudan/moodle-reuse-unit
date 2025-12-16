@@ -237,3 +237,20 @@ $string['importqueue'] = 'Import queue';
 $string['queueitems'] = '{$a} items in queue';
 $string['error_toomanyimports'] = 'Maximum {$a} sections can be imported at once';
 $string['processingitem'] = 'Processing {$a->current} of {$a->total}...';
+
+// Template versioning.
+$string['versions'] = 'Versions';
+$string['versionhistory'] = 'Version history';
+$string['currentversion'] = 'Current version';
+$string['version'] = 'Version {$a}';
+$string['versioncreated'] = 'Version {$a} created successfully';
+$string['createversion'] = 'Create new version';
+$string['updatetemplate'] = 'Update template';
+$string['changelog'] = 'Change description';
+$string['changelog_help'] = 'Describe what changed in this version';
+$string['noversions'] = 'No version history available';
+$string['viewversions'] = 'View versions';
+$string['restoreversion'] = 'Restore this version';
+$string['confirmrestore'] = 'Are you sure you want to restore version {$a}?';
+$string['versionrestored'] = 'Version restored successfully';
+$string['compareversions'] = 'Compare versions';
