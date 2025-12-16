@@ -1,6 +1,8 @@
 # Moodle Reuse Unit Plugin
 
+[![Moodle Plugin CI](https://github.com/hyukudan/moodle-reuse-unit/actions/workflows/ci.yml/badge.svg)](https://github.com/hyukudan/moodle-reuse-unit/actions/workflows/ci.yml)
 [![Moodle 4.0+](https://img.shields.io/badge/Moodle-4.0%2B-orange.svg)](https://moodle.org)
+[![PHP 8.0+](https://img.shields.io/badge/PHP-8.0%2B-blue.svg)](https://php.net)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 **Import and reuse course sections/units across different courses in Moodle.**
@@ -24,11 +26,12 @@ This plugin allows teachers to easily copy complete sections (with all activitie
 ### Multi-language Support
 - English (en)
 - Spanish (es)
+- Brazilian Portuguese (pt_br)
 
 ## Requirements
 
 - Moodle 4.0 or later
-- PHP 7.4 or later
+- PHP 8.0 or later
 
 ## Installation
 
