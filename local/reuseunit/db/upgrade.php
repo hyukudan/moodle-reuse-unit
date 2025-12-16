@@ -119,5 +119,41 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024121606, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2024121607) {
+        // Define table local_reuseunit_links for section synchronization.
+        $table = new xmldb_table('local_reuseunit_links');
+
+        // Adding fields.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sectionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('autosync', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('template_version', XMLDB_TYPE_INTEGER, '5', null, null, null, '1');
+        $table->add_field('last_synced', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+        $table->add_key('sectionid', XMLDB_KEY_FOREIGN, ['sectionid'], 'course_sections', ['id']);
+        $table->add_key('templateid', XMLDB_KEY_FOREIGN, ['templateid'], 'local_reuseunit_templates', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Adding indexes.
+        $table->add_index('courseid_sectionid', XMLDB_INDEX_UNIQUE, ['courseid', 'sectionid']);
+        $table->add_index('templateid_autosync', XMLDB_INDEX_NOTUNIQUE, ['templateid', 'autosync']);
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2024121607, 'local', 'reuseunit');
+    }
+
     return true;
 }

@@ -197,6 +197,39 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Section synchronization services.
+    'local_reuseunit_link_section' => [
+        'classname' => 'local_reuseunit\external\link_section',
+        'description' => 'Link a section to a template for sync',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_unlink_section' => [
+        'classname' => 'local_reuseunit\external\unlink_section',
+        'description' => 'Remove link between section and template',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_sync_section' => [
+        'classname' => 'local_reuseunit\external\sync_section',
+        'description' => 'Sync a linked section with its template',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_get_linked_sections' => [
+        'classname' => 'local_reuseunit\external\get_linked_sections',
+        'description' => 'Get linked sections for a course',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -223,6 +256,10 @@ $services = [
             'local_reuseunit_approve_template',
             'local_reuseunit_reject_template',
             'local_reuseunit_get_pending_templates',
+            'local_reuseunit_link_section',
+            'local_reuseunit_unlink_section',
+            'local_reuseunit_sync_section',
+            'local_reuseunit_get_linked_sections',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
