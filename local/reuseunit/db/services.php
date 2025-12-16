@@ -164,6 +164,39 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    // Approval workflow services.
+    'local_reuseunit_submit_for_approval' => [
+        'classname' => 'local_reuseunit\external\submit_for_approval',
+        'description' => 'Submit a template for global approval',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_approve_template' => [
+        'classname' => 'local_reuseunit\external\approve_template',
+        'description' => 'Approve a pending template',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_reject_template' => [
+        'classname' => 'local_reuseunit\external\reject_template',
+        'description' => 'Reject a pending template',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_reuseunit_get_pending_templates' => [
+        'classname' => 'local_reuseunit\external\get_pending_templates',
+        'description' => 'Get templates pending approval',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
 ];
 
 $services = [
@@ -186,6 +219,10 @@ $services = [
             'local_reuseunit_get_template_versions',
             'local_reuseunit_update_template_version',
             'local_reuseunit_get_statistics',
+            'local_reuseunit_submit_for_approval',
+            'local_reuseunit_approve_template',
+            'local_reuseunit_reject_template',
+            'local_reuseunit_get_pending_templates',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

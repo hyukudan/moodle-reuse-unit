@@ -77,5 +77,47 @@ function xmldb_local_reuseunit_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024121603, 'local', 'reuseunit');
     }
 
+    if ($oldversion < 2024121606) {
+        // Add approval workflow fields to templates table.
+        $table = new xmldb_table('local_reuseunit_templates');
+
+        // Add approval_status field.
+        $field = new xmldb_field('approval_status', XMLDB_TYPE_CHAR, '20', null, null, null, 'none', 'share_level');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add submitted_at field.
+        $field = new xmldb_field('submitted_at', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'approval_status');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add approved_by field.
+        $field = new xmldb_field('approved_by', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'submitted_at');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add approved_at field.
+        $field = new xmldb_field('approved_at', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'approved_by');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add rejection_reason field.
+        $field = new xmldb_field('rejection_reason', XMLDB_TYPE_TEXT, null, null, null, null, null, 'approved_at');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Update existing global templates to approved status.
+        $DB->execute("UPDATE {local_reuseunit_templates} SET approval_status = 'approved' WHERE share_level = 'global'");
+        $DB->execute("UPDATE {local_reuseunit_templates} SET approval_status = 'none' WHERE share_level != 'global' OR approval_status IS NULL");
+
+        // Reuseunit savepoint reached.
+        upgrade_plugin_savepoint(true, 2024121606, 'local', 'reuseunit');
+    }
+
     return true;
 }
