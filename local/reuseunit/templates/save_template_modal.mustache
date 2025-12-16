@@ -1,0 +1,76 @@
+{{!
+    @template local_reuseunit/save_template_modal
+
+    Modal for saving a section as a template.
+
+    Context variables:
+    * sectionname - Current section name
+    * courseid - Course ID
+    * sectionid - Section ID
+    * categoryid - Category ID for category-level sharing
+    * categoryname - Category name
+}}
+<div class="modal fade" id="save-template-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{#pix}}i/repository, core{{/pix}} {{#str}}saveastemplate, local_reuseunit{{/str}}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="template-courseid" value="{{courseid}}">
+                <input type="hidden" id="template-sectionid" value="{{sectionid}}">
+                <input type="hidden" id="template-categoryid" value="{{categoryid}}">
+
+                <div class="form-group">
+                    <label for="template-name">{{#str}}templatename, local_reuseunit{{/str}} *</label>
+                    <input type="text" id="template-name" class="form-control" value="{{sectionname}}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="template-description">{{#str}}templatedescription, local_reuseunit{{/str}}</label>
+                    <textarea id="template-description" class="form-control" rows="3" placeholder="{{#str}}templatedescription_placeholder, local_reuseunit{{/str}}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="template-tags">{{#str}}templatetags, local_reuseunit{{/str}}</label>
+                    <input type="text" id="template-tags" class="form-control" placeholder="{{#str}}templatetags_placeholder, local_reuseunit{{/str}}">
+                    <small class="form-text text-muted">{{#str}}templatetags_help, local_reuseunit{{/str}}</small>
+                </div>
+
+                <div class="form-group">
+                    <label>{{#str}}sharelevel, local_reuseunit{{/str}}</label>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="share-personal" name="sharelevel" class="custom-control-input" value="personal" checked>
+                        <label class="custom-control-label" for="share-personal">
+                            {{#pix}}i/user, core{{/pix}} {{#str}}sharelevel_personal, local_reuseunit{{/str}}
+                            <small class="text-muted d-block">{{#str}}sharelevel_personal_desc, local_reuseunit{{/str}}</small>
+                        </label>
+                    </div>
+                    <div class="custom-control custom-radio mt-2">
+                        <input type="radio" id="share-category" name="sharelevel" class="custom-control-input" value="category">
+                        <label class="custom-control-label" for="share-category">
+                            {{#pix}}i/folder, core{{/pix}} {{#str}}sharelevel_category, local_reuseunit{{/str}}: {{categoryname}}
+                            <small class="text-muted d-block">{{#str}}sharelevel_category_desc, local_reuseunit{{/str}}</small>
+                        </label>
+                    </div>
+                    <div class="custom-control custom-radio mt-2">
+                        <input type="radio" id="share-global" name="sharelevel" class="custom-control-input" value="global">
+                        <label class="custom-control-label" for="share-global">
+                            {{#pix}}i/siteevent, core{{/pix}} {{#str}}sharelevel_global, local_reuseunit{{/str}}
+                            <small class="text-muted d-block">{{#str}}sharelevel_global_desc, local_reuseunit{{/str}}</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}}cancel, local_reuseunit{{/str}}</button>
+                <button type="button" class="btn btn-primary" id="btn-save-template">
+                    {{#pix}}i/backup, core{{/pix}} {{#str}}savetemplate, local_reuseunit{{/str}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

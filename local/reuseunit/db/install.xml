@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/reuseunit/db" VERSION="20241216" COMMENT="XMLDB file for local_reuseunit"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_reuseunit_history" COMMENT="History of section imports">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who performed the import"/>
+        <FIELD NAME="source_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source course ID"/>
+        <FIELD NAME="source_sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Source section ID"/>
+        <FIELD NAME="source_sectionname" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Original section name"/>
+        <FIELD NAME="dest_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Destination course ID"/>
+        <FIELD NAME="dest_sectionid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Created section ID"/>
+        <FIELD NAME="options" TYPE="text" NOTNULL="false" COMMENT="JSON encoded import options"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pending" COMMENT="Import status: pending, running, completed, failed"/>
+        <FIELD NAME="activities_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of activities imported"/>
+        <FIELD NAME="resources_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of resources imported"/>
+        <FIELD NAME="error_message" TYPE="text" NOTNULL="false" COMMENT="Error message if import failed"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Time import was started"/>
+        <FIELD NAME="timecompleted" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Time import was completed"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="source_courseid" TYPE="foreign" FIELDS="source_courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="dest_courseid" TYPE="foreign" FIELDS="dest_courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_timecreated" UNIQUE="false" FIELDS="userid, timecreated"/>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_favorites" COMMENT="User favorite sections/templates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who favorited"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Course containing the section"/>
+        <FIELD NAME="sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Favorited section ID"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Custom name for the favorite"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Time favorite was created"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_courseid_sectionid" UNIQUE="true" FIELDS="userid, courseid, sectionid"/>
+        <INDEX NAME="userid_timecreated" UNIQUE="false" FIELDS="userid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_reuseunit_templates" COMMENT="Shared section templates">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creator user ID"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Template name"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" COMMENT="Template description"/>
+        <FIELD NAME="tags" TYPE="text" NOTNULL="false" COMMENT="Comma-separated tags"/>
+        <FIELD NAME="sharelevel" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="personal" COMMENT="Share level: personal, category, global"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID for category-level sharing"/>
+        <FIELD NAME="source_courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Original source course ID"/>
+        <FIELD NAME="source_sectionid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Original source section ID"/>
+        <FIELD NAME="activities_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of activities"/>
+        <FIELD NAME="resources_count" TYPE="int" LENGTH="5" NOTNULL="false" DEFAULT="0" COMMENT="Number of resources"/>
+        <FIELD NAME="fileitemid" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="File item ID for backup file"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" COMMENT="Hash of backup content"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creation time"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Last modification time"/>
+        <FIELD NAME="usagecount" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" COMMENT="Number of times used"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="course_categories" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="sharelevel" UNIQUE="false" FIELDS="sharelevel"/>
+        <INDEX NAME="userid_sharelevel" UNIQUE="false" FIELDS="userid, sharelevel"/>
+        <INDEX NAME="categoryid_sharelevel" UNIQUE="false" FIELDS="categoryid, sharelevel"/>
+        <INDEX NAME="name" UNIQUE="false" FIELDS="name"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

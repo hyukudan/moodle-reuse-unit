@@ -1,0 +1,229 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_reuseunit/import_wizard
+
+    Import wizard template.
+
+    Context variables:
+    * courseid - Destination course ID (optional)
+    * sectionid - Destination section ID (optional)
+    * haspreselectedcourse - Whether a course is preselected
+}}
+<div id="reuseunit-wizard" class="reuseunit-wizard" data-courseid="{{courseid}}" data-sectionid="{{sectionid}}">
+    {{! Steps Indicator }}
+    <div class="reuseunit-steps mb-4">
+        <div class="reuseunit-step active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-title">{{#str}}step1_title, local_reuseunit{{/str}}</div>
+        </div>
+        <div class="reuseunit-step-connector"></div>
+        <div class="reuseunit-step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-title">{{#str}}step2_title, local_reuseunit{{/str}}</div>
+        </div>
+        <div class="reuseunit-step-connector"></div>
+        <div class="reuseunit-step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-title">{{#str}}step3_title, local_reuseunit{{/str}}</div>
+        </div>
+    </div>
+
+    {{! Step 1: Select Source }}
+    <div class="reuseunit-step-content" data-step="1">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{#str}}step1_title, local_reuseunit{{/str}}</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">{{#str}}step1_description, local_reuseunit{{/str}}</p>
+
+                {{! Source Tabs: Course or Templates }}
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#source-course-tab" role="tab">
+                            {{#pix}}i/course, core{{/pix}} {{#str}}sourcecourse, local_reuseunit{{/str}}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#source-templates-tab" role="tab">
+                            {{#pix}}i/repository, core{{/pix}} {{#str}}templates, local_reuseunit{{/str}}
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    {{! From Course }}
+                    <div class="tab-pane fade show active" id="source-course-tab" role="tabpanel">
+                        <div class="form-group">
+                            <label for="source-course-search">{{#str}}searchcourse, local_reuseunit{{/str}}</label>
+                            <div class="input-group">
+                                <input type="text" id="source-course-search" class="form-control"
+                                       placeholder="{{#str}}searchcourseplaceholder, local_reuseunit{{/str}}" autocomplete="off">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">{{#pix}}i/search, core{{/pix}}</span>
+                                </div>
+                            </div>
+                            <div id="source-course-results" class="reuseunit-search-results d-none"></div>
+                            <input type="hidden" id="source-course-id" value="">
+                        </div>
+
+                        <div class="form-group mt-4" id="sections-container" style="display: none;">
+                            <label>{{#str}}availablesections, local_reuseunit{{/str}}</label>
+                            <div id="sections-list" class="reuseunit-sections-list"></div>
+                        </div>
+                    </div>
+
+                    {{! From Templates }}
+                    <div class="tab-pane fade" id="source-templates-tab" role="tabpanel">
+                        <div class="form-group">
+                            <input type="text" id="template-search" class="form-control"
+                                   placeholder="{{#str}}searchtemplates, local_reuseunit{{/str}}">
+                        </div>
+                        <div id="templates-list" class="reuseunit-templates-list">
+                            <p class="text-muted text-center py-3">{{#str}}notemplates, local_reuseunit{{/str}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-right">
+                <button type="button" class="btn btn-primary" id="btn-step1-next" disabled>
+                    {{#str}}next, local_reuseunit{{/str}} &raquo;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{! Step 2: Preview & Options }}
+    <div class="reuseunit-step-content d-none" data-step="2">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{#str}}step2_title, local_reuseunit{{/str}}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h5>{{#str}}contenttobeimported, local_reuseunit{{/str}}</h5>
+                        <div id="section-preview" class="reuseunit-preview border rounded p-3"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <h5>{{#str}}importoptions, local_reuseunit{{/str}}</h5>
+                        <div class="reuseunit-options">
+                            <div class="custom-control custom-checkbox mb-2">
+                                <input type="checkbox" class="custom-control-input" id="option-resetdates" checked>
+                                <label class="custom-control-label" for="option-resetdates">{{#str}}resetdates, local_reuseunit{{/str}}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox mb-2">
+                                <input type="checkbox" class="custom-control-input" id="option-restrictions">
+                                <label class="custom-control-label" for="option-restrictions">{{#str}}includerestrictions, local_reuseunit{{/str}}</label>
+                            </div>
+                            <div class="custom-control custom-checkbox mb-2">
+                                <input type="checkbox" class="custom-control-input" id="option-gradebook">
+                                <label class="custom-control-label" for="option-gradebook">{{#str}}includegradebook, local_reuseunit{{/str}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="btn-step2-prev">&laquo; {{#str}}previous, local_reuseunit{{/str}}</button>
+                <button type="button" class="btn btn-primary" id="btn-step2-next">{{#str}}next, local_reuseunit{{/str}} &raquo;</button>
+            </div>
+        </div>
+    </div>
+
+    {{! Step 3: Destination }}
+    <div class="reuseunit-step-content d-none" data-step="3">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{#str}}step3_title, local_reuseunit{{/str}}</h4>
+            </div>
+            <div class="card-body">
+                {{^haspreselectedcourse}}
+                <div class="form-group">
+                    <label for="dest-course-search">{{#str}}destinationcourse, local_reuseunit{{/str}}</label>
+                    <div class="input-group">
+                        <input type="text" id="dest-course-search" class="form-control"
+                               placeholder="{{#str}}searchcourseplaceholder, local_reuseunit{{/str}}" autocomplete="off">
+                        <div class="input-group-append">
+                            <span class="input-group-text">{{#pix}}i/search, core{{/pix}}</span>
+                        </div>
+                    </div>
+                    <div id="dest-course-results" class="reuseunit-search-results d-none"></div>
+                </div>
+                {{/haspreselectedcourse}}
+                {{#haspreselectedcourse}}
+                <div class="alert alert-info">{{#str}}currentcourse, local_reuseunit{{/str}}: <strong id="dest-course-name"></strong></div>
+                {{/haspreselectedcourse}}
+                <input type="hidden" id="dest-course-id" value="{{courseid}}">
+
+                <div class="form-group mt-3">
+                    <label>{{#str}}insertposition, local_reuseunit{{/str}}</label>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="position-end" name="position" class="custom-control-input" value="end" checked>
+                        <label class="custom-control-label" for="position-end">{{#str}}position_end, local_reuseunit{{/str}}</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="position-start" name="position" class="custom-control-input" value="start">
+                        <label class="custom-control-label" for="position-start">{{#str}}position_start, local_reuseunit{{/str}}</label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="new-section-name">{{#str}}newsectionname, local_reuseunit{{/str}}</label>
+                    <input type="text" id="new-section-name" class="form-control" placeholder="{{#str}}keepsectionname, local_reuseunit{{/str}}">
+                </div>
+
+                <div class="alert alert-warning mt-4" id="import-summary">
+                    <strong>{{#str}}confirmimportmessage, local_reuseunit{{/str}}</strong>
+                    <ul class="mb-0 mt-2" id="import-summary-list"></ul>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="btn-step3-prev">&laquo; {{#str}}previous, local_reuseunit{{/str}}</button>
+                <button type="button" class="btn btn-success" id="btn-import">{{#pix}}i/import, core{{/pix}} {{#str}}import, local_reuseunit{{/str}}</button>
+            </div>
+        </div>
+    </div>
+
+    {{! Progress }}
+    <div class="reuseunit-step-content d-none" data-step="progress">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                <p class="text-muted" id="progress-message">{{#str}}preparingimport, local_reuseunit{{/str}}</p>
+            </div>
+        </div>
+    </div>
+
+    {{! Result }}
+    <div class="reuseunit-step-content d-none" data-step="result">
+        <div class="card">
+            <div class="card-header bg-success text-white" id="result-header">
+                <h4 class="mb-0">{{#str}}importsuccessful, local_reuseunit{{/str}}</h4>
+            </div>
+            <div class="card-body text-center py-4">
+                <p id="result-message">{{#str}}importcompleted, local_reuseunit{{/str}}</p>
+                <div id="result-stats" class="text-muted mb-4"></div>
+                <div class="btn-group">
+                    <a href="#" id="btn-view-section" class="btn btn-primary">{{#str}}viewimportedsection, local_reuseunit{{/str}}</a>
+                    <button type="button" class="btn btn-outline-primary" id="btn-import-another">{{#str}}importanother, local_reuseunit{{/str}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

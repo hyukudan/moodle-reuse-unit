@@ -26,10 +26,12 @@ Crear una extensión para Moodle 4.x+ que permita reutilizar secciones/unidades 
 - [ ] Advertencias sobre contenido no compatible
 
 ### 3. **Opciones de Importación**
-- [ ] Importar con/sin datos de usuarios (siempre sin por defecto)
-- [ ] Mantener/resetear fechas de actividades
-- [ ] Incluir/excluir restricciones de acceso
-- [ ] Incluir/excluir configuración de calificaciones
+> ⚠️ **IMPORTANTE**: NUNCA se importan datos de usuarios (entregas, intentos, calificaciones obtenidas).
+> Solo se importa la estructura y configuración del contenido.
+
+- [ ] Mantener/resetear fechas de actividades (resetear por defecto)
+- [ ] Incluir/excluir restricciones de acceso (excluir por defecto)
+- [ ] Incluir/excluir estructura del libro de calificaciones (excluir por defecto)
 - [ ] Renombrar sección al importar
 - [ ] Importar múltiples secciones a la vez
 
@@ -48,6 +50,12 @@ Crear una extensión para Moodle 4.x+ que permita reutilizar secciones/unidades 
 - [ ] Capability `local/reuseunit:export` - Puede exportar/compartir unidades
 - [ ] Capability `local/reuseunit:managetemplates` - Gestionar plantillas globales
 - [ ] Respetar permisos de acceso a cursos origen
+
+### 7. **Acceso Rápido desde Modo Edición** ⭐ NEW
+- [ ] Botón/icono "Importar unidad" en cada sección del curso (modo edición)
+- [ ] Abre modal con wizard simplificado (curso destino ya seleccionado)
+- [ ] Integración con el menú de acciones de sección
+- [ ] Acceso desde el menú "Añadir actividad o recurso"
 
 ---
 
@@ -153,6 +161,51 @@ Crear una extensión para Moodle 4.x+ que permita reutilizar secciones/unidades 
    - Toast de éxito/error
    - Modal de confirmación antes de importar
    - Resumen post-importación con enlace al curso
+
+### Flujo Rápido desde Modo Edición (2 pasos)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Modo Edición del Curso                                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  📚 Tema 1: Introducción                                        │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ [+ Añadir actividad] [+ Añadir recurso] [📥 Importar]   │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  📚 Tema 2: Contenido principal                    [⚙️ ▼]      │
+│  ├── 📝 Cuestionario 1                             ┌─────────┐ │
+│  └── 📄 Material de lectura                        │ Editar  │ │
+│                                                    │ Ocultar │ │
+│                                                    │ Eliminar│ │
+│                                                    │─────────│ │
+│                                                    │📥Importar│ │
+│                                                    │  unidad │ │
+│                                                    └─────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Al hacer clic en "Importar unidad":
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  📥 Importar Unidad en: Tema 2                           [✕]   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Curso origen:  [🔍 Buscar curso...                        ▼]  │
+│                                                                 │
+│  Sección a importar:                                            │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ ○ Tema 1: Intro (2 act.)  ○ Tema 2: Core (5 act.)      │   │
+│  │ ○ Tema 3: Avanzado (3 act.)                             │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  ☑ Resetear fechas   ☐ Incluir restricciones                   │
+│                                                                 │
+│                              [Cancelar]  [📥 Importar aquí]     │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
